@@ -1,0 +1,30 @@
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  
+}
+
+.saludo-container {
+  display: flex;
+  align-items: center;
+}
+
+.saludo {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.button-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.color-boton {
+  background-color: #1465bb;
+  color: #ffffff;
+  border: none;
+}

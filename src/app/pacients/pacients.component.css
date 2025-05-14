@@ -1,0 +1,51 @@
+.button-custome{
+    border: none;
+}
+
+.button-add{
+    display: flex;              
+    justify-content: flex-end;
+    margin-bottom: 50px;
+    gap: 1200px;
+}
+
+.button-search{
+    display: flex;
+    margin-bottom: 75px;
+    gap:20px;
+}
+
+
+.elegant-dialog .p-dialog-header {
+  background: linear-gradient(135deg, #3B82F6, #6366F1);
+  color: white;
+  border-radius: 6px 6px 0 0;
+}
+
+.elegant-dialog .p-dialog-content {
+  padding: 1.5rem;
+}
+
+.elegant-form .p-float-label label {
+  color: #64748B;
+}
+
+.elegant-form .p-inputtext {
+  border-radius: 4px;
+  border: 1px solid #E2E8F0;
+  transition: all 0.3s;
+}
+
+.elegant-form .p-inputtext:enabled:hover {
+  border-color: #94A3B8;
+}
+
+.elegant-form .p-inputtext:enabled:focus {
+  box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.2);
+  border-color: #6366F1;
+}
+
+.elegant-form .p-button {
+  border-radius: 6px;
+  padding: 0.5rem 1.25rem;
+}

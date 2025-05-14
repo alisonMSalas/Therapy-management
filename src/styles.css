@@ -1,5 +1,7 @@
 
- @import "primeicons/primeicons.css";      
+ @import "primeicons/primeicons.css";    
+ @import 'primeflex/primeflex.css';
+
 
  body {
     font-family: 'Montserrat', sans-serif;

@@ -1,6 +1,6 @@
 export interface Patient {
-    id: number;
-  uuid: string;
+    id?: number;
+  uuid?:string;
   identification_number: string;
   full_name: string;
   phone_number: string;

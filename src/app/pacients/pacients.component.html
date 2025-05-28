@@ -1,1 +1,243 @@
-<p>pacients works!</p>
+<div class=" button-add">
+  <p-button type="button" severity="warn" (click)="showAddDialog()">
+    <span class="pi pi-plus-circle"></span> Agregar
+  </p-button>
+</div>
+<div class="button-search">
+  <p-iconfield>
+    <p-inputicon styleClass="pi pi-search" />
+    <input type="text" pInputText placeholder="Buscar" />
+  </p-iconfield>
+  <p-button icon="pi pi-search" label="Buscar"></p-button>
+</div>
+<p-table [value]="patients" [paginator]="true" [rows]="5" [tableStyle]="{'min-width': '50rem'}">
+  <ng-template pTemplate="header">
+    <tr>
+      <th pSortableColumn="identification_number">Identificación <p-sortIcon field="identification_number"></p-sortIcon>
+      <th pSortableColumn="full_name">Nombre Completo <p-sortIcon field="full_name"></p-sortIcon></th>
+      <th pSortableColumn="email">Correo <p-sortIcon field="email"></p-sortIcon></th>
+      <th pSortableColumn="address">Teléfono <p-sortIcon field="address"></p-sortIcon></th>
+      <th>Acciones</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-patient>
+    <tr>
+      <td>{{ patient.identification_number }}</td>
+      <td>{{ patient.full_name }}</td>
+      <td>{{ patient.email }}</td>
+      <td>{{ patient.address }}</td>
+    
+      <td>
+        <button pButton type="button" outlined="true" icon="pi pi-eye" severity="info"
+          class="p-mr-2 button-custome" (click)="showDetailDialog(patient)"></button>
+        <button pButton type="button" outlined="true" icon="pi pi-pen-to-square" severity="warn"
+          class="p-mr-2 button-custome" (click)="showEditDialog(patient)"></button>
+        <button pButton type="button" outlined="true" icon="pi pi-trash"
+          class="p-button-danger button-custome"></button>
+
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<p-dialog [header]="isEditMode ? 'Editar Paciente' : 'Agregar Paciente'" [(visible)]="displayDialog" [modal]="true"
+  [style]="{width: '50vw', 'min-width': '300px'}" [breakpoints]="{'960px': '75vw', '640px': '90vw'}" [draggable]="false"
+  [resizable]="false" class="elegant-dialog">
+
+  <div class="p-fluid elegant-form">
+
+    <div class="field mb-4">
+      <span class="p-float-label">
+        <label for="full_name">
+          <i class="pi pi-user mr-2 mb-2"></i>Nombre Completo
+        </label>
+        <input id="full_name" type="text" pInputText [(ngModel)]="currentPatient.full_name" class="w-full" />
+      </span>
+
+    </div>
+    <div class="grid mb-4">
+      <div class="col-12 md:col-4">
+        <div class="field">
+          <span class="p-float-label">
+            <label for="identification_number">
+              <i class="pi pi-id-card mr-2 mb-2"></i>Identificación
+            </label>
+            <p-inputnumber id="full_name" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"
+              [(ngModel)]="currentPatient.identification_number" class="w-full" />
+          </span>
+        </div>
+      </div>
+
+      <div class="col-12 md:col-4">
+        <div class="field">
+          <span class="p-float-label">
+
+            <label for="phone_number">
+              <i class="pi pi-phone mr-2 mb-2"></i>Teléfono
+            </label>
+            <p-inputnumber id="phone_number" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"
+              [(ngModel)]="currentPatient.phone_number" class="w-full" />
+          </span>
+        </div>
+      </div>
+
+      <div class="col-12 md:col-4">
+        <div class="field">
+          <span class="p-float-label">
+            <label for="emergency_phone_number">
+              <i class="pi pi-exclamation-circle mr-2 mb-2"></i>Tel. Emergencia
+            </label>
+            <p-inputnumber id="emergency_phone_number" mode="decimal" inputId="withoutgrouping" [useGrouping]="false"
+              [(ngModel)]="currentPatient.emergency_phone_number" class="w-full" />
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid mb-4">
+
+      <div class="col-12 md:col-4">
+        <div class="field">
+          <span class="p-float-label">
+            <label for="email">
+              <i class="pi pi-envelope mr-2 mb-2"></i>Email
+            </label>
+            <input id="email" type="email" pInputText [(ngModel)]="currentPatient.email" class="w-full" />
+          </span>
+        </div>
+      </div>
+
+      <div class="col-12 md:col-4">
+        <div class="field">
+          <span class="p-float-label">
+            <label for="address">
+              <i class="pi pi-home mr-2 mb-2"></i>Dirección
+            </label>
+            <input id="address" type="text" pInputText [(ngModel)]="currentPatient.address" class="w-full" />
+          </span>
+        </div>
+      </div>
+
+      <div class="col-12 md:col-4">
+        <div class="field">
+          <span class="p-float-label">
+            <label for="age">
+              <i class="pi pi-calendar mr-2 mb-2"></i>Edad
+            </label>
+            <p-inputnumber id="age" inputId="integeronly" [(ngModel)]="currentPatient.age" class="w-full" min="0"
+              max="120" />
+
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cancelar" icon="pi pi-times" class="p-button-outlined p-button-secondary"
+      (click)="cancelDialog()"></button>
+    <button pButton type="button" [label]="isEditMode ? 'Actualizar' : 'Guardar'" icon="pi pi-check"
+      class="p-button-success"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog [header]="currentPatient.full_name" [(visible)]="displayDetailDialog" 
+          [modal]="true" [style]="{width: '50vw', 'min-width': '300px'}" 
+          [breakpoints]="{'960px': '75vw', '640px': '90vw'}" 
+          [draggable]="false" [resizable]="false" 
+          [transitionOptions]="'150ms cubic-bezier(0.25, 0.8, 0.25, 1)'"
+          class="modern-patient-dialog ">
+  
+  <div class="dialog-header-gradient"></div>
+  
+  <div class="p-fluid modern-detail-form">
+     <div class="section-title">
+      <i class="pi pi-user"></i>
+      <span>Información Personal</span>
+    </div>
+    
+    <div class="grid">
+     
+      <div class="col-12 md:col-6">
+        <div class="info-card">
+          <div class="info-icon">
+            <i class="pi pi-id-card"></i>
+          </div>
+          <div class="info-content">
+            <label>Identificación</label>
+            <p class="info-value">{{ currentPatient.identification_number }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-12 md:col-6">
+        <div class="info-card">
+          <div class="info-icon">
+            <i class="pi pi-calendar"></i>
+          </div>
+          <div class="info-content">
+            <label>Edad</label>
+            <p class="info-value">{{ currentPatient.age }} años</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    
+    <div class="grid">
+      <div class="col-12">
+        <div class="info-card">
+          <div class="info-icon">
+            <i class="pi pi-envelope"></i>
+          </div>
+          <div class="info-content">
+            <label>Correo Electrónico</label>
+            <p class="info-value">{{ currentPatient.email }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-12 md:col-6">
+        <div class="info-card">
+          <div class="info-icon">
+            <i class="pi pi-phone"></i>
+          </div>
+          <div class="info-content">
+            <label>Teléfono</label>
+            <p class="info-value">{{ currentPatient.phone_number }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-12 md:col-6">
+        <div class="info-card emergency">
+          <div class="info-icon">
+            <i class="pi pi-exclamation-circle"></i>
+          </div>
+          <div class="info-content">
+            <label>Teléfono de Emergencia</label>
+            <p class="info-value">{{ currentPatient.emergency_phone_number || 'No especificado' }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-12">
+        <div class="info-card">
+          <div class="info-icon">
+            <i class="pi pi-home"></i>
+          </div>
+          <div class="info-content">
+            <label>Dirección</label>
+            <p class="info-value">{{ currentPatient.address || 'No especificado' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cerrar" icon="pi pi-times" 
+            class="p-button-rounded p-button-text close-button" 
+            (click)="closeDetailDialog()"></button>
+  </ng-template>
+</p-dialog>

@@ -1,0 +1,186 @@
+.calendar-container {
+  padding: 20px;
+  height: calc(100vh - 120px);
+  width: 100%;
+}
+
+:host ::ng-deep .fc {
+  width: 100%;
+  height: 100%;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+:host ::ng-deep .fc-toolbar-title {
+  font-size: 1.5em !important;
+  color: #333;
+}
+
+:host ::ng-deep .fc-button-primary {
+  background-color: #FF725E !important;
+  border-color: #FF725E !important;
+}
+
+:host ::ng-deep .fc-button-primary:hover {
+  background-color: #ff8d7c !important;
+  border-color: #ff8d7c !important;
+}
+
+:host ::ng-deep .fc-daygrid-day.fc-day-today {
+  background-color: #FF725E22 !important;
+}
+
+:host ::ng-deep .appointment-count {
+  position: relative;
+}
+
+:host ::ng-deep .fc-daygrid-day-number {
+  font-weight: bold;
+}
+
+/* Estilos para la tabla de citas */
+:host ::ng-deep .p-dialog .p-dialog-header {
+  background: #FF725E;
+  color: white;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-content {
+  padding: 2rem;
+}
+
+.combined-yes {
+  background-color: #4CAF50;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.combined-no {
+  background-color: #9E9E9E;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.attendance-pendiente {
+  background-color: #FFC107;
+  color: black;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.attendance-confirmado {
+  background-color: #4CAF50;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.attendance-no.asistió {
+  background-color: #F44336;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.attendance-reprogramada {
+  background-color: #2196F3;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-header {
+  background: #f8f9fa;
+  padding: 1rem;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  padding: 1rem;
+}
+
+.attendance-cell {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+:host ::ng-deep .p-dropdown {
+  min-width: 150px;
+}
+
+/* Estilos para el modal de nueva cita */
+.appointment-steps {
+  margin-bottom: 2rem;
+}
+
+.step-container {
+  padding: 1rem 0;
+}
+
+.step-container h3 {
+  margin-bottom: 1.5rem;
+  color: #495057;
+}
+
+.step-container label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #495057;
+}
+
+.patient-info {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.patient-info h4 {
+  color: #495057;
+  margin-bottom: 1rem;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #dee2e6;
+}
+
+:host ::ng-deep .p-steps .p-steps-item .p-menuitem-link {
+  background: #ffffff;
+}
+
+:host ::ng-deep .p-steps .p-steps-item.p-highlight .p-steps-number {
+  background: #FF725E;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -0.5rem;
+}
+
+.col-12 {
+  flex: 0 0 100%;
+  padding: 0.5rem;
+}
+
+.md\:col-6 {
+  flex: 0 0 50%;
+  padding: 0.5rem;
+}
+
+@media screen and (max-width: 768px) {
+  .md\:col-6 {
+    flex: 0 0 100%;
+  }
+}

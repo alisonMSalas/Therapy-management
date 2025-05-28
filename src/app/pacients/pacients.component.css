@@ -1,0 +1,133 @@
+.button-custome{
+    border: none;
+}
+
+.button-add{
+    display: flex;              
+    justify-content: flex-end;
+    margin-bottom: 50px;
+    gap: 1200px;
+}
+
+.button-search{
+    display: flex;
+    margin-bottom: 75px;
+    gap:20px;
+}
+
+::ng-deep .button-search .p-button{
+   background-color: #0C4652; 
+   border: none;
+}
+::ng-deep .button-search .p-button:hover{
+   background-color: #277787; 
+   border: none;
+}
+
+
+
+.modern-patient-dialog {
+  .p-dialog-header {
+    border-radius: 12px 12px 0 0;
+    position: relative;
+    overflow: hidden;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, #0C4652, #37a5bb);
+    }
+  }
+  
+  .dialog-header-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #0C4652, #37a5bb);
+  }
+  
+  
+  
+  .section-title {
+    display: flex;
+    align-items: center;
+    margin: 1.5rem 0 1rem;
+    color: #4B5563;
+    font-weight: 600;
+    
+    i {
+      margin-right: 0.5rem;
+      color: #3B82F6;
+    }
+  }
+  
+  .info-card {
+    display: flex;
+    align-items: flex-start;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border-radius: 8px;
+    background-color: #F9FAFB;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: #F3F4F6;
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    &.emergency {
+      border-left: 3px solid #EF4444;
+    }
+    
+    .info-icon {
+      margin-right: 1rem;
+      color: #3B82F6;
+      font-size: 1.25rem;
+      padding: 0.5rem;
+      background: rgba(59, 130, 246, 0.1);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .info-content {
+      flex: 1;
+      
+      label {
+        display: block;
+        font-size: 0.75rem;
+        color: #6B7280;
+        margin-bottom: 0.25rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .info-value {
+        margin: 0;
+        font-size: 1rem;
+        color: #111827;
+        font-weight: 500;
+      }
+    }
+  }
+  
+  .close-button {
+    color: #6B7280 !important;
+    
+    &:hover {
+      color: #3B82F6 !important;
+      background-color: rgba(59, 130, 246, 0.1) !important;
+    }
+  }
+}

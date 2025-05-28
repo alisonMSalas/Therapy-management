@@ -16,9 +16,7 @@
       <th pSortableColumn="identification_number">Identificación <p-sortIcon field="identification_number"></p-sortIcon>
       <th pSortableColumn="full_name">Nombre Completo <p-sortIcon field="full_name"></p-sortIcon></th>
       <th pSortableColumn="email">Correo <p-sortIcon field="email"></p-sortIcon></th>
-      <th pSortableColumn="address">Sesiones <p-sortIcon field="address"></p-sortIcon></th>
-      <th pSortableColumn="status">Estado <p-sortIcon field="status"></p-sortIcon></th>
-      <th pSortableColumn="created_at">Fecha Ultima Sesion <p-sortIcon field="created_at"></p-sortIcon></th>
+      <th pSortableColumn="address">Teléfono <p-sortIcon field="address"></p-sortIcon></th>
       <th>Acciones</th>
     </tr>
   </ng-template>
@@ -28,10 +26,7 @@
       <td>{{ patient.full_name }}</td>
       <td>{{ patient.email }}</td>
       <td>{{ patient.address }}</td>
-      <td>
-  <p-toggleSwitch [(ngModel)]="checked"></p-toggleSwitch>
-</td>
-      <td>{{ patient.created_at}}</td>
+    
       <td>
         <button pButton type="button" outlined="true" icon="pi pi-eye" severity="info"
           class="p-mr-2 button-custome" (click)="showDetailDialog(patient)"></button>
@@ -162,7 +157,7 @@
     </div>
     
     <div class="grid">
-      <!-- Primera fila - Información principal -->
+     
       <div class="col-12 md:col-6">
         <div class="info-card">
           <div class="info-icon">
@@ -188,7 +183,6 @@
       </div>
     </div>
     
-    <!-- Segunda fila - Datos personales -->
     
     <div class="grid">
       <div class="col-12">

@@ -3,17 +3,8 @@
     type="button" 
     label="Agendar Cita" 
     icon="pi pi-calendar-plus" 
-    severity="warn"
     (onClick)="showNewAppointmentModal()"
-    >
-  </p-button>
-  <p-button 
-    type="button" 
-    label="Ver Registros" 
-    icon="pi pi-file" 
-    severity="warn"
-    (onClick)="showAllAppointments()"
-    >
+    [style]="{ 'background-color': '#0C4652', 'color': '#fff', 'border': 'none' }">
   </p-button>
 </div>
    
@@ -23,7 +14,7 @@
 
 <!-- Modal de citas existentes -->
 <p-dialog 
-  header="Citas del día {{ formatDate(selectedDate) }}"
+  [header]="'Citas del día ' + formatDate(selectedDate)"
   [(visible)]="displayAppointmentsModal"
   [modal]="true"
   [style]="{width: '90vw'}"
@@ -33,7 +24,7 @@
   <p-table [value]="appointments" [tableStyle]="{'min-width': '50rem'}" [paginator]="true" [rows]="10">
     <ng-template pTemplate="header">
       <tr>
-        <th>Hora</th>
+        <th>Fecha y Hora</th>
         <th>Nombre</th>
         <th>DNI</th>
         <th>Email</th>
@@ -41,34 +32,33 @@
         <th>Sala</th>
         <th>Combinada</th>
         <th>Asistencia</th>
+        <th>Acciones</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-appointment>
       <tr>
-        <td>{{appointment.time}}</td>
-        <td>{{appointment.name}}</td>
-        <td>{{appointment.dni}}</td>
-        <td>{{appointment.email}}</td>
-        <td>{{appointment.phone}}</td>
-        <td>{{appointment.roomNumber}}</td>
+        <td>{{ getRawHourMinute(appointment.dateTime) }}</td>
+        <td>{{ appointment.client.fullName }}</td>
+        <td>{{ appointment.client.idNumber }}</td>
+        <td>{{ appointment.client.email }}</td>
+        <td>{{ appointment.client.phone }}</td>
+        <td>{{ appointment.room.name }}</td>
         <td>
-          <span [class]="appointment.isCombined ? 'combined-yes' : 'combined-no'">
-            {{appointment.isCombined ? 'Sí' : 'No'}}
+          <span [class]="appointment.isShared ? 'combined-yes' : 'combined-no'">
+            {{ appointment.isShared ? 'Sí' : 'No' }}
           </span>
         </td>
         <td>
           <div class="attendance-cell">
-            <span [class]="'attendance-' + appointment.attendance.toLowerCase()">
-              {{appointment.attendance}}
+            <span [class]="'attendance-' + (appointment.attendanceStatus === 'pending' ? 'pendiente' : appointment.attendanceStatus.toLowerCase())">
+              {{ attendanceStatusMap[appointment.attendanceStatus] || appointment.attendanceStatus }}
             </span>
-            <p-dropdown 
-              [options]="attendanceOptions" 
-              [(ngModel)]="appointment.attendance"
-              (onChange)="updateAttendance(appointment, $event.value)"
-              [style]="{'width': '150px'}"
-              placeholder="Cambiar estado">
-            </p-dropdown>
           </div>
+        </td>
+        <td class="actions-cell">
+          <button type="button" class="icon-btn icon-btn-menu" (click)="showAttendanceMenuDay($event, appointment, attendanceMenuDay)">
+            <i class="pi pi-ellipsis-v"></i>
+          </button>
         </td>
       </tr>
     </ng-template>
@@ -119,28 +109,29 @@
     </ng-template>
     <ng-template pTemplate="body" let-appointment>
       <tr>
-        <td>{{formatDateTime(appointment.date!, appointment.time)}}</td>
-        <td>{{appointment.name}}</td>
-        <td>{{appointment.dni}}</td>
-        <td>{{appointment.email}}</td>
-        <td>{{appointment.phone}}</td>
-        <td>{{appointment.roomNumber}}</td>
+        <td>{{ appointment.dateTime | date:'dd/MM/yyyy HH:mm' }}</td>
+        <td>{{ appointment.client.fullName }}</td>
+        <td>{{ appointment.client.idNumber }}</td>
+        <td>{{ appointment.client.email }}</td>
+        <td>{{ appointment.client.phone }}</td>
+        <td>{{ appointment.room.name }}</td>
         <td>
-          <span [class]="appointment.isCombined ? 'combined-yes' : 'combined-no'">
-            {{appointment.isCombined ? 'Sí' : 'No'}}
+          <span [class]="appointment.isShared ? 'combined-yes' : 'combined-no'">
+            {{ appointment.isShared ? 'Sí' : 'No' }}
           </span>
         </td>
         <td>
           <div class="attendance-cell">
-            <span [class]="'attendance-' + appointment.attendance.toLowerCase()">
-              {{appointment.attendance}}
+            <span [class]="'attendance-' + (appointment.attendanceStatus === 'pending' ? 'pendiente' : appointment.attendanceStatus.toLowerCase())">
+              {{ attendanceStatusMap[appointment.attendanceStatus] || appointment.attendanceStatus }}
             </span>
             <p-dropdown 
               [options]="attendanceOptions" 
-              [(ngModel)]="appointment.attendance"
+              [(ngModel)]="appointment.attendanceStatus"
               (onChange)="updateAttendance(appointment, $event.value)"
               [style]="{'width': '150px'}"
-              placeholder="Cambiar estado">
+              placeholder="Cambiar estado"
+              appendTo="body">
             </p-dropdown>
           </div>
         </td>
@@ -180,7 +171,8 @@
             dateFormat="dd/mm/yy"
             [showTime]="false"
             [minDate]="minDate"
-            class="w-full">
+            class="w-full"
+            appendTo="body">
           </p-calendar>
         </div>
         <div class="col-12 md:col-6">
@@ -191,7 +183,8 @@
             [showIcon]="true"
             [showTime]="true"
             [showSeconds]="false"
-            class="w-full">
+            class="w-full"
+            appendTo="body">
           </p-calendar>
         </div>
       </div>
@@ -199,37 +192,26 @@
 
     <!-- Paso 2: Datos del Cliente -->
     <div *ngSwitchCase="1" class="step-container">
-      <h3>Buscar Cliente</h3>
+      <h3>Datos del Cliente</h3>
       <div class="grid">
-        <div class="col-12">
-          <label>Buscar por DNI o Nombre</label>
-          <p-autoComplete
-            [(ngModel)]="newAppointment.patientDni"
-            [suggestions]="filteredPatients"
-            (completeMethod)="searchPatient($event)"
-            field="identification_number"
-            [dropdown]="true"
-            [forceSelection]="true"
-            placeholder="Ingrese DNI o nombre del paciente"
-            (onSelect)="onPatientSelect($event)"
-            class="w-full">
-            <ng-template let-patient pTemplate="item">
-              {{patient.full_name}} - {{patient.identification_number}}
-            </ng-template>
-          </p-autoComplete>
+        <div class="col-12" style="display: flex; align-items: end; gap: 0.5rem;">
+          <div style="flex: 1;">
+            <label>Cédula del cliente</label>
+            <input type="text" pInputText [(ngModel)]="searchIdNumber" placeholder="Ingrese la cédula" class="w-full" maxlength="10" />
+          </div>
+          <button pButton type="button" icon="pi pi-search" (click)="buscarClientePorCedula()" class="p-button-info"></button>
         </div>
       </div>
-
       <div *ngIf="newAppointment.patient" class="patient-info">
         <h4>Información del Paciente</h4>
         <div class="grid">
           <div class="col-12 md:col-6">
             <label>Nombre Completo</label>
-            <input type="text" pInputText [value]="newAppointment.patient.full_name" readonly class="w-full">
+            <input type="text" pInputText [value]="newAppointment.patient.fullName" readonly class="w-full">
           </div>
           <div class="col-12 md:col-6">
-            <label>DNI</label>
-            <input type="text" pInputText [value]="newAppointment.patient.identification_number" readonly class="w-full">
+            <label>Cédula</label>
+            <input type="text" pInputText [value]="newAppointment.patient.idNumber" readonly class="w-full">
           </div>
           <div class="col-12 md:col-6">
             <label>Email</label>
@@ -237,19 +219,9 @@
           </div>
           <div class="col-12 md:col-6">
             <label>Teléfono</label>
-            <input type="text" pInputText [value]="newAppointment.patient.phone_number" readonly class="w-full">
+            <input type="text" pInputText [value]="newAppointment.patient.phone" readonly class="w-full">
           </div>
         </div>
-      </div>
-
-      <div *ngIf="!newAppointment.patient" class="text-center mt-4">
-        <p>No se encontró el paciente</p>
-        <p-button 
-          label="Crear Nuevo Paciente" 
-          icon="pi pi-user-plus"
-          (onClick)="createNewPatient()"
-          severity="success">
-        </p-button>
       </div>
     </div>
 
@@ -297,7 +269,7 @@
       label="Anterior" 
       icon="pi pi-chevron-left" 
       (onClick)="prevStep()"
-      severity="secondary">
+      [style]="{ 'background-color': '#0C4652', 'color': '#fff', 'border': 'none' }">
     </p-button>
     <p-button 
       *ngIf="activeStep < 2" 
@@ -305,15 +277,122 @@
       icon="pi pi-chevron-right" 
       iconPos="right"
       (onClick)="nextStep()"
-      [disabled]="(activeStep === 1 && !newAppointment.patient)">
+      [disabled]="(activeStep === 1 && !newAppointment.patient)"
+      [style]="{ 'background-color': '#0C4652', 'color': '#fff', 'border': 'none' }">
     </p-button>
     <p-button 
       *ngIf="activeStep === 2" 
       label="Guardar Cita" 
       icon="pi pi-check" 
-      severity="success"
       (onClick)="saveAppointment()"
-      [disabled]="!newAppointment.roomNumber">
+      [disabled]="!newAppointment.roomNumber"
+      [style]="{ 'background-color': '#0C4652', 'color': '#fff', 'border': 'none' }">
     </p-button>
   </div>
 </p-dialog>
+
+<p-dialog [header]="'Agregar Paciente'" [(visible)]="displayPatientDialog" [modal]="true"
+  [style]="{width: '50vw', 'min-width': '300px'}" [breakpoints]="{'960px': '75vw', '640px': '90vw'}" [draggable]="false"
+  [resizable]="false" class="elegant-dialog">
+
+  <div class="p-fluid elegant-form">
+    <div class="field mb-4">
+      <span class="p-float-label">
+        <label for="full_name">
+          <i class="pi pi-user mr-2 mb-2"></i>Nombre Completo
+        </label>
+        <input id="full_name" type="text" pInputText [(ngModel)]="currentPatient.full_name" class="w-full" />
+      </span>
+    </div>
+    <div class="grid mb-4">
+      <div class="col-12 md:col-4">
+        <div class="field">
+          <span class="p-float-label">
+            <label for="identification_number">
+              <i class="pi pi-id-card mr-2 mb-2"></i>Identificación
+            </label>
+            <input id="identification_number" type="text" pInputText maxlength="10"
+              [(ngModel)]="currentPatient.identification_number"
+              (ngModelChange)="onCedulaChangeCita($event)"
+              class="w-full" />
+          </span>
+          <small *ngIf="cedulaInvalida" class="p-error">Cédula ecuatoriana no válida</small>
+        </div>
+      </div>
+      <div class="col-12 md:col-4">
+        <div class="field">
+          <span class="p-float-label">
+            <label for="phone_number">
+              <i class="pi pi-phone mr-2 mb-2"></i>Teléfono
+            </label>
+            <input id="phone_number" type="text" pInputText maxlength="10"
+              [(ngModel)]="currentPatient.phone_number"
+              (ngModelChange)="onTelefonoChangeCita($event, 'phone_number')"
+              class="w-full" />
+          </span>
+          <small *ngIf="telefonoInvalido" class="p-error">El teléfono debe tener 10 dígitos</small>
+        </div>
+      </div>
+      <div class="col-12 md:col-4">
+        <div class="field">
+          <span class="p-float-label">
+            <label for="emergency_phone_number">
+              <i class="pi pi-exclamation-circle mr-2 mb-2"></i>Tel. Emergencia
+            </label>
+            <input id="emergency_phone_number" type="text" pInputText maxlength="10"
+              [(ngModel)]="currentPatient.emergency_phone_number"
+              (ngModelChange)="onTelefonoChangeCita($event, 'emergency_phone_number')"
+              class="w-full" />
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="grid mb-4">
+      <div class="col-12 md:col-4">
+        <div class="field">
+          <span class="p-float-label">
+            <label for="email">
+              <i class="pi pi-envelope mr-2 mb-2"></i>Email
+            </label>
+            <input id="email" type="email" pInputText [(ngModel)]="currentPatient.email" class="w-full" />
+          </span>
+        </div>
+      </div>
+      <div class="col-12 md:col-4">
+        <div class="field">
+          <span class="p-float-label">
+            <label for="address">
+              <i class="pi pi-home mr-2 mb-2"></i>Dirección
+            </label>
+            <input id="address" type="text" pInputText [(ngModel)]="currentPatient.address" class="w-full" />
+          </span>
+        </div>
+      </div>
+      <div class="col-12 md:col-4">
+        <div class="field">
+          <span class="p-float-label">
+            <label for="age">
+              <i class="pi pi-calendar mr-2 mb-2"></i>Edad
+            </label>
+            <p-inputnumber id="age" inputId="integeronly" [(ngModel)]="currentPatient.age" class="w-full" min="0"
+              max="120" />
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cancelar" icon="pi pi-times" class="p-button-outlined p-button-secondary"
+      (click)="displayPatientDialog = false"></button>
+    <button pButton type="button" label="Guardar" icon="pi pi-check"
+      class="p-button-success" (click)="savePatientFromCita()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-overlayPanel #attendanceMenuDay>
+  <div style="min-width: 180px;">
+    <button *ngFor="let option of attendanceOptions" type="button" class="attendance-menu-btn" (click)="setAttendanceStatusDay(option.value)">
+      {{ option.label }}
+    </button>
+  </div>
+</p-overlayPanel>

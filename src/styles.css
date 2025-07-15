@@ -9,3 +9,10 @@
     margin: 0;
     
 }
+
+/* Paleta global */
+:root {
+  --color-principal: #0C4652;
+}
+
+/* Elimino los overrides globales de botones PrimeNG y de iconos personalizados para restaurar los colores originales del tema */

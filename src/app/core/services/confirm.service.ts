@@ -22,4 +22,20 @@ export class ConfirmService {
       });
     });
   }
+
+  confirmInfo(message: string): Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
+      this.confirmationService.confirm({
+        message,
+        header: 'Agregar',
+        icon: 'pi pi-user-plus',
+        acceptLabel: 'Agregar',
+        rejectLabel: 'Cancelar',
+        rejectButtonStyleClass: 'p-button-outlined p-button-secondary',
+        acceptButtonStyleClass: 'p-button-info',
+        accept: () => resolve(true),
+        reject: () => resolve(false)
+      });
+    });
+  }
 }

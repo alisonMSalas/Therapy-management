@@ -131,3 +131,10 @@
     }
   }
 }
+
+small.p-error {
+  color: #e53935 !important;
+  font-size: 0.85em;
+  margin-top: 2px;
+  display: block;
+}

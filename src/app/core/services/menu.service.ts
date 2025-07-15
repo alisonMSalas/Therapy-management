@@ -12,9 +12,9 @@ export interface IMenu{
 export class MenuService {
 
   private listMenu: IMenu[] = [
-    { title: 'Inicio', url: '/', icon: 'pi pi-home' },
-    { title: 'Pacientes', url: '/pacients', icon: 'pi pi-plus-circle' },
-    
+    { title: 'Inicio', url: '/main', icon: 'pi pi-home' },
+    { title: 'Pacientes', url: '/main/pacients', icon: 'pi pi-plus-circle' },
+    { title: 'Registro de Citas', url: '/main/appointments-records', icon: 'pi pi-file' },
   ]
   getMenu(){
     return [...this.listMenu];

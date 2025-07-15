@@ -5,6 +5,8 @@ import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
+import { provideHttpClient } from '@angular/common/http';
+import { MessageService, ConfirmationService } from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,5 +21,9 @@ export const appConfig: ApplicationConfig = {
       }
     }
     }),
-     provideClientHydration(withEventReplay())]
+     provideClientHydration(withEventReplay()),
+     provideHttpClient(),
+     MessageService,
+     ConfirmationService
+  ]
 };

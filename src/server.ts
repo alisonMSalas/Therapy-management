@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
+const isProduction = process.env['NODE_ENV'] === 'production';
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
@@ -27,24 +28,55 @@ const angularApp = new AngularNodeAppEngine();
  */
 
 /**
- * Serve static files from /browser
+ * Middleware to prevent serving pre-rendered HTML files
+ * This forces dynamic rendering for all HTML content
+ */
+app.use((req, res, next) => {
+  if (req.path.endsWith('.html') || req.path === '/' || req.path === '') {
+    return next(); // Let Angular handle HTML rendering dynamically
+  }
+  next();
+});
+
+/**
+ * Serve static files from /browser (CSS, JS, images, etc.)
+ * But NOT HTML files - those should be rendered dynamically
  */
 app.use(
   express.static(browserDistFolder, {
-    maxAge: '1y',
+    // Only serve non-HTML files
     index: false,
     redirect: false,
+    // Control cache headers explicitly
+    setHeaders: (res, filePath) => {
+      if (isProduction) {
+        const fileName = filePath.split(/[\\\/]/).pop() ?? '';
+        const hasHash = /[.-][A-Za-z0-9]{8,}\./.test(fileName);
+        if (hasHash) {
+          // Long-term cache for hashed assets
+          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        } else {
+          // For non-hashed assets, revalidate
+          res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+        }
+      } else {
+        // Disable caching entirely in development
+        res.setHeader('Cache-Control', 'no-store');
+      }
+    },
   }),
 );
 
 /**
- * Handle all other requests by rendering the Angular application.
+ * Handle all other requests by rendering the Angular application dynamically.
+ * This ensures fresh data is always fetched from the database.
  */
 app.use('/**', (req, res, next) => {
+  // Always render dynamically to get fresh data
   angularApp
     .handle(req)
-    .then((response) =>
-      response ? writeResponseToNodeResponse(response, res) : next(),
+    .then((response: unknown) =>
+      response ? writeResponseToNodeResponse(response as any, res) : next(),
     )
     .catch(next);
 });
@@ -57,6 +89,7 @@ if (isMainModule(import.meta.url)) {
   const port = process.env['PORT'] || 4000;
   app.listen(port, () => {
     console.log(`Node Express server listening on http://localhost:${port}`);
+    console.log(`Dynamic rendering enabled - fresh data will be fetched on each request`);
   });
 }
 

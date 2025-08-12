@@ -193,22 +193,9 @@ export class PacientsComponent implements OnInit{
   }
 
   isValidEcuadorianID(cedula: string): boolean {
+    // Solo validar que sea 10 dígitos y solo números
     if (!cedula || cedula.length !== 10 || !/^[0-9]+$/.test(cedula)) return false;
-    const province = parseInt(cedula.substring(0, 2), 10);
-    if (province < 1 || province > 24) return false;
-    const thirdDigit = parseInt(cedula[2], 10);
-    if (thirdDigit > 9) return false;
-    let sum = 0;
-    for (let i = 0; i < 9; i++) {
-      let digit = parseInt(cedula[i], 10);
-      if (i % 2 === 0) {
-        digit *= 2;
-        if (digit > 9) digit -= 9;
-      }
-      sum += digit;
-    }
-    const verifier = (10 - (sum % 10)) % 10;
-    return verifier === parseInt(cedula[9], 10);
+    return true;
   }
 
   async deletePatient(patient: Patient) {

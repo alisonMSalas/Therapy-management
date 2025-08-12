@@ -66,7 +66,7 @@ export class HomeComponent implements OnInit {
   selectedDate: string = '';
   appointments: BackendAppointment[] = [];
   allAppointments: BackendAppointment[] = [];
-  minDate: Date = new Date();
+  minDate: Date = new Date(1900, 0, 1); // Permitir fechas desde 1900
   calendarLocale: any = esLocale;
   searchText: string = '';
   searchIdNumber: string = '';
@@ -391,11 +391,7 @@ export class HomeComponent implements OnInit {
             return;
           }
           
-          // Validar que la fecha y hora no sea en el pasado
-          if (this.isDateTimeInPast(this.newAppointment.date, this.newAppointment.timeString)) {
-            this.messageService.showError('No se puede crear una cita en el pasado. Por favor, seleccione una fecha y hora futura.');
-            return;
-          }
+          // La validación de fecha/hora en el pasado se ha removido - se permiten citas pasadas
           
           // Validar conflictos para cita única
           if (this.checkForConflict()) {
@@ -412,14 +408,7 @@ export class HomeComponent implements OnInit {
             return;
           }
           
-          // Validar que ninguna cita esté en el pasado
-          for (let i = 0; i < this.multipleAppointments.length; i++) {
-            const appointment = this.multipleAppointments[i];
-            if (this.isDateTimeInPast(appointment.date, appointment.timeString)) {
-              this.messageService.showError(`Cita ${i + 1}: No se puede crear una cita en el pasado. Por favor, seleccione una fecha y hora futura.`);
-              return;
-            }
-          }
+          // La validación de fecha/hora en el pasado se ha removido - se permiten citas pasadas
           
           // Validar conflictos para todas las citas
           let hasConflict = false;
@@ -538,18 +527,10 @@ export class HomeComponent implements OnInit {
     const date = this.newAppointment.date;
     const timeString = this.newAppointment.timeString;
     
-    // Validar que la fecha no sea en el pasado
-    const now = new Date();
+    // Extraer horas y minutos del timeString
     const [hours, minutes] = timeString.split(':').map(Number);
-    const appointmentDateTime = new Date(
-      date.getFullYear(), date.getMonth(), date.getDate(),
-      hours, minutes
-    );
     
-    if (appointmentDateTime <= now) {
-      this.messageService.showError('No se puede crear una cita en el pasado. Por favor, seleccione una fecha y hora futura.');
-      return;
-    }
+    // La validación de fecha/hora en el pasado se ha removido - se permiten citas pasadas
     
     // Construir dateTime para validación (hora local sin ajuste)
     const localDateTime = new Date(
@@ -957,20 +938,21 @@ export class HomeComponent implements OnInit {
     return false; // No hay conflicto
   }
 
-  // Función para verificar si una fecha y hora está en el pasado
-  isDateTimeInPast(date: Date, timeString: string): boolean {
-    const now = new Date();
-    const [hours, minutes] = timeString.split(':').map(Number);
-    
-    // Crear la fecha y hora de la cita
-    const appointmentDateTime = new Date(
-      date.getFullYear(), date.getMonth(), date.getDate(),
-      hours, minutes
-    );
-    
-    // Comparar con el momento actual
-    return appointmentDateTime <= now;
-  }
+  // Función para verificar si una fecha y hora está en el pasado - REMOVIDA
+  // Se permiten citas en fechas y horas pasadas
+  // isDateTimeInPast(date: Date, timeString: string): boolean {
+  //   const now = new Date();
+  //   const [hours, minutes] = timeString.split(':').map(Number);
+  //   
+  //   // Crear la fecha y hora de la cita
+  //   const appointmentDateTime = new Date(
+  //     date.getFullYear(), date.getMonth(), date.getDate(),
+  //     hours, minutes
+  //   );
+  //   
+  //   // Comparar con el momento actual
+  //   return appointmentDateTime <= now;
+  // }
 
   // Función para verificar conflicto en citas múltiples
   checkForConflictMultiple(appointment: any, index: number): boolean {

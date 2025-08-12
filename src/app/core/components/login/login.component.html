@@ -1,0 +1,31 @@
+<div class="login-container p-fluid">
+    <div class="left-section">
+      <!-- Imagen de fondo relajante -->
+    </div>
+    
+    <div class="right-section p-card">
+      <div class="logo">
+        <img src="../../../../assets/images/halo.png">
+      </div>
+  
+      <h2>Bienvenido</h2>
+      <p class="subtitle">Inicia sesión</p>
+  
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="p-fluid">
+     
+        <div class="p-field">
+          <label for="email">Correo electrónico</label>
+          <input pInputText id="email" formControlName="email" type="text" />
+        </div>
+  
+        <div class="p-field">
+          <label for="password">Contraseña</label>
+          <input pInputText id="password" formControlName="password" type="password" />
+        </div>
+  
+  
+        <button pButton type="submit" label="Ingresar" class="p-button-rounded login-blue-btn"></button>
+      </form>
+  
+    </div>
+  </div>

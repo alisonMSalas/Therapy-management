@@ -1,0 +1,97 @@
+.login-container {
+    display: flex;
+    height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+  
+    .left-section {
+      flex: 1;
+       background: url('../../../../assets/images/fondo2.webp') no-repeat center center; 
+      background-size: cover;
+      position: relative;
+      &:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(113, 128, 147, 0.3);
+      }
+    }
+  
+    .right-section {
+      flex: 0.5;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 2rem;
+      background: white;
+      box-shadow: -5px 0 15px rgba(0, 0, 0, 0.05);
+  
+      .logo {
+        text-align: center;
+        margin-bottom: 2rem;
+        img {
+          width: 120px;
+        }
+      }
+  
+      h2 {
+        color: #2c3e50;
+        text-align: center;
+      }
+  
+      .subtitle {
+        color: #7f8c8d;
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+  
+      .p-field {
+        margin-bottom: 1.5rem;
+      }
+  
+      .p-field label {
+        display: block;
+        margin-bottom: 0.4rem;
+        color: #34495e;
+        font-weight: 500;
+      }
+      .p-field input[pInputText] {
+        width: 100%;
+        margin-top: 0;
+        box-sizing: border-box;
+      }
+      .login-blue-btn {
+        width: 100%;
+        background: #2072b4 !important;
+        border: none !important;
+        color: #fff !important;
+      }
+      .login-blue-btn:hover, .login-blue-btn:focus {
+        background: #1461af !important;
+        color: #fff !important;
+      }
+  
+     
+  
+      button {
+        width: 100%;
+        background: #16a085;
+        border: none;
+        &:hover {
+          background: #1abc9c;
+        }
+      }
+  
+      .footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        color: #7f8c8d;
+        a {
+          color: #3498db;
+          text-decoration: none;
+        }
+      }
+    }
+  }

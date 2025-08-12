@@ -1,0 +1,105 @@
+<div class="appointments-records-container">
+  <h2>Registro de Citas</h2>
+  <div class="search-container mb-3" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+    <div style="flex: 1; min-width: 220px;">
+      <span class="p-input-icon-left" style="width: 100%;">
+      
+        <input 
+          type="text" 
+          pInputText 
+          [(ngModel)]="searchText" 
+          placeholder="Buscar por nombre o DNI..." 
+          class="w-full">
+      </span>
+    </div>
+    <div style="min-width: 180px;">
+      <p-dropdown 
+        [options]="getRooms().length ? getRooms() : [{label: 'Sin salas', value: ''}]" 
+        [(ngModel)]="selectedRoom"
+        placeholder="Filtrar por sala"
+        [style.min-width]="'180px'"
+        showClear="true">
+      </p-dropdown>
+    </div>
+    <div style="min-width: 180px;">
+      <p-dropdown 
+        [options]="[
+          {label: 'Pendiente', value: 'pending'},
+          {label: 'Confirmado', value: 'confirmed'},
+          {label: 'No asistió', value: 'no_attendance'},
+          {label: 'Reprogramada', value: 'reprogrammed'}
+        ]"
+        [(ngModel)]="selectedAttendance"
+        placeholder="Filtrar por asistencia"
+        [style.min-width]="'180px'"
+        showClear="true">
+      </p-dropdown>
+    </div>
+  </div>
+
+  <p-table 
+    [value]="filterAppointments()" 
+    [tableStyle]="{'min-width': '50rem'}" 
+    [paginator]="true" 
+    [rows]="10"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} citas">
+    
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="dateTime">Fecha y Hora <p-sortIcon field="dateTime"></p-sortIcon></th>
+        <th>Nombre</th>
+        <th>DNI</th>
+        <th>Email</th>
+        <th>Teléfono</th>
+        <th>Sala</th>
+        <th>Combinada</th>
+        <th>Asistencia</th>
+        <th>Acciones</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-appointment>
+      <tr>
+        <td>{{ appointment.dateTime | date:'dd/MM/yyyy HH:mm' }}</td>
+        <td>{{ appointment.client.fullName }}</td>
+        <td>{{ appointment.client.idNumber }}</td>
+        <td>{{ appointment.client.email }}</td>
+        <td>{{ appointment.client.phone }}</td>
+        <td>{{ appointment.room.name }}</td>
+        <td>
+          <span [class]="appointment.isShared ? 'combined-yes' : 'combined-no'">
+            {{ appointment.isShared ? 'Sí' : 'No' }}
+          </span>
+        </td>
+        <td>
+          <div class="attendance-cell">
+            <span [class]="'attendance-' + (appointment.attendanceStatus === 'pending' ? 'pendiente' : appointment.attendanceStatus.toLowerCase())">
+              {{ attendanceStatusMap[appointment.attendanceStatus] || appointment.attendanceStatus }}
+            </span>
+          </div>
+        </td>
+        <td class="actions-cell">
+          <button type="button" class="icon-btn icon-btn-danger" (click)="deleteAppointment(appointment.id)">
+            <i class="pi pi-trash"></i>
+          </button>
+          <button type="button" class="icon-btn icon-btn-menu" (click)="showAttendanceMenu($event, appointment, attendanceMenu)">
+            <i class="pi pi-ellipsis-v"></i>
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="8" class="text-center">No se encontraron citas.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <p-overlayPanel #attendanceMenu>
+    <div style="min-width: 180px;">
+      <button *ngFor="let option of attendanceOptions" type="button" class="attendance-menu-btn" (click)="setAttendanceStatus(option.value)">
+        {{ option.label }}
+      </button>
+    </div>
+  </p-overlayPanel>
+</div>

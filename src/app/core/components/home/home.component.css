@@ -1,0 +1,337 @@
+.calendar-container {
+  padding: 20px;
+  height: calc(100vh - 120px);
+  width: 100%;
+}
+
+:host ::ng-deep .fc {
+  width: 100%;
+  height: 100%;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+:host ::ng-deep .fc-toolbar-title {
+  font-size: 1.5em !important;
+  color: #333;
+}
+
+:host ::ng-deep .fc-button-primary {
+  background-color: #FF725E !important;
+  border-color: #FF725E !important;
+}
+
+:host ::ng-deep .fc-button-primary:hover {
+  background-color: #ff8d7c !important;
+  border-color: #ff8d7c !important;
+}
+
+:host ::ng-deep .fc-daygrid-day.fc-day-today {
+  background-color: #FF725E22 !important;
+}
+
+:host ::ng-deep .appointment-count {
+  position: relative;
+}
+
+:host ::ng-deep .fc-daygrid-day-number {
+  font-weight: bold;
+}
+
+/* Estilos para la tabla de citas */
+:host ::ng-deep .p-dialog .p-dialog-header {
+  background: #FF725E;
+  color: white;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-content {
+  padding: 2rem;
+}
+
+:host ::ng-deep .p-dialog {
+  min-height: 70vh !important;
+  /* El ancho se mantiene igual, solo se aumenta la altura */
+}
+
+/* Colores para combinada (pasteles) */
+.combined-yes {
+  background-color: #C8E6C9; /* verde pastel */
+  color: #388E3C; /* verde intenso */
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.combined-no {
+  background-color: #E0E0E0; /* gris pastel */
+  color: #616161; /* gris intenso */
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* Colores para asistencia (pasteles) */
+.attendance-pendiente {
+  background-color: #FFF9C4; /* amarillo pastel */
+  color: #FBC02D; /* amarillo intenso */
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.attendance-confirmed {
+  background-color: #C8E6C9; /* verde pastel */
+  color: #388E3C; /* verde intenso */
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+.attendance-no_attendance {
+  background-color: #FFCDD2; /* rojo pastel */
+  color: #C62828; /* rojo intenso */
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+.attendance-reprogrammed {
+  background-color: #BBDEFB; /* azul pastel */
+  color: #1565C0; /* azul intenso */
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-header {
+  background: #f8f9fa;
+  padding: 1rem;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  padding: 1rem;
+}
+
+.attendance-cell {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+:host ::ng-deep .p-dropdown {
+  min-width: 150px;
+}
+
+/* Estilos para el modal de nueva cita */
+.appointment-steps {
+  margin-bottom: 2rem;
+}
+
+.step-container {
+  padding: 1rem 0;
+}
+
+.step-container h3 {
+  margin-bottom: 1.5rem;
+  color: #495057;
+}
+
+.step-container label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #495057;
+}
+
+.patient-info {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.patient-info h4 {
+  color: #495057;
+  margin-bottom: 1rem;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #dee2e6;
+}
+
+:host ::ng-deep .p-steps .p-steps-item .p-menuitem-link {
+  background: #ffffff;
+}
+
+:host ::ng-deep .p-steps .p-steps-item.p-highlight .p-steps-number {
+  background: #FF725E;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -0.5rem;
+}
+
+.col-12 {
+  flex: 0 0 100%;
+  padding: 0.5rem;
+}
+
+.md\:col-6 {
+  flex: 0 0 50%;
+  padding: 0.5rem;
+}
+
+@media screen and (max-width: 768px) {
+  .md\:col-6 {
+    flex: 0 0 100%;
+  }
+}
+
+.attendance-pending {
+  background-color: #FFC107;
+  color: black;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+}
+.icon-btn-menu i,
+.icon-btn-danger i {
+  font-size: 1rem;
+}
+.icon-btn {
+  padding: 0.15rem;
+}
+.attendance-menu-btn {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Montserrat', sans-serif;
+}
+.attendance-menu-btn:hover {
+  background: #f5f5f5;
+}
+.icon-btn-menu {
+  border: none;
+  background: none;
+  box-shadow: none;
+}
+
+:host ::ng-deep .calendar-has-appointments {
+  background-color: #FFEBEE !important; /* rojo pastel suave */
+  border: 2px solid #FF725E !important;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+/* Paleta de colores */
+:root {
+  --color-principal: #0C4652;
+  --color-principal-hover: #08313a;
+  --color-secundario: #FF725E;
+  --color-secundario-hover: #ff4d36;
+  --color-complementario: #FFD166;
+  --color-complementario-hover: #ffb700;
+}
+
+/* Botón principal */
+.btn-principal, :host ::ng-deep .p-button.p-button-primary {
+  background: var(--color-principal) !important;
+  border: none !important;
+  color: #fff !important;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.btn-principal:hover, :host ::ng-deep .p-button.p-button-primary:hover {
+  background: var(--color-principal-hover) !important;
+}
+
+/* Botón secundario */
+.btn-secundario, :host ::ng-deep .p-button.p-button-secondary {
+  background: var(--color-secundario) !important;
+  border: none !important;
+  color: #fff !important;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.btn-secundario:hover, :host ::ng-deep .p-button.p-button-secondary:hover {
+  background: var(--color-secundario-hover) !important;
+}
+
+/* Botón advertencia/complementario */
+.btn-complementario {
+  background: var(--color-complementario) !important;
+  border: none !important;
+  color: var(--color-principal) !important;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.btn-complementario:hover {
+  background: var(--color-complementario-hover) !important;
+}
+
+/* Botón solo borde (opcional) */
+.btn-outline {
+  background: transparent !important;
+  border: 2px solid var(--color-principal) !important;
+  color: var(--color-principal) !important;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+.btn-outline:hover {
+  background: var(--color-principal) !important;
+  color: #fff !important;
+}
+
+/* Ajustes para botones PrimeNG en diálogos y tablas */
+:host ::ng-deep .p-dialog .p-button {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  border-radius: 6px;
+}
+:host ::ng-deep .p-button {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+:host ::ng-deep .p-dialog .p-highlight,
+:host ::ng-deep .p-dialog .p-calendar .p-highlight,
+:host ::ng-deep .p-dialog .p-calendar .p-datepicker-header,
+:host ::ng-deep .p-dialog .p-dropdown .p-highlight,
+:host ::ng-deep .p-dialog .p-checkbox-box.p-highlight,
+:host ::ng-deep .p-dialog .p-radiobutton-box.p-highlight,
+:host ::ng-deep .p-dialog .p-checkbox-box.p-focus,
+:host ::ng-deep .p-dialog .p-radiobutton-box.p-focus {
+  background: #0C4652 !important;
+  border-color: #0C4652 !important;
+  color: #fff !important;
+}
+
+:host ::ng-deep .p-dialog .p-checkbox-box.p-highlight .p-checkbox-icon,
+:host ::ng-deep .p-dialog .p-radiobutton-box.p-highlight .p-radiobutton-icon {
+  color: #fff !important;
+}

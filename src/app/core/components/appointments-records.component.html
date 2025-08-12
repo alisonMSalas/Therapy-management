@@ -85,7 +85,7 @@
     </ng-template>
     <ng-template pTemplate="body" let-appointment>
       <tr>
-        <td>{{ appointment.dateTime | date:'dd/MM/yyyy HH:mm' }}</td>
+        <td>{{ getLocalDateTimeNoConversion(appointment.dateTime) }}</td>
         <td>{{ appointment.client.fullName }}</td>
         <td>{{ appointment.client.idNumber }}</td>
         <td>{{ appointment.client.email }}</td>

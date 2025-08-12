@@ -9,6 +9,7 @@ export interface Appointment {
   isShared: boolean;
   createdAt: string;
   attendanceStatus: string;
+  comments?: string;
   room: {
     id: number;
     name: string;
@@ -33,6 +34,11 @@ export interface CreateAppointmentRequest {
   isShared: boolean;
   roomId: number;
   clientId: number;
+  comments?: string;
+}
+
+export interface UpdateCommentsDto {
+  comments: string;
 }
 
 @Injectable({
@@ -53,6 +59,10 @@ export class AppointmentsService {
 
   updateAttendance(appointmentId: number, attendanceStatus: string): Observable<any> {
     return this.http.patch(`${this.apiUrl}/${appointmentId}/attendance`, { attendanceStatus });
+  }
+
+  updateComments(appointmentId: number, updateCommentsDto: UpdateCommentsDto): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${appointmentId}/comments`, updateCommentsDto);
   }
 
   deleteAppointment(appointmentId: number): Observable<any> {

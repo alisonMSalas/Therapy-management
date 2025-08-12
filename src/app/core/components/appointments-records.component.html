@@ -1,27 +1,41 @@
 <div class="appointments-records-container">
   <h2>Registro de Citas</h2>
-  <div class="search-container mb-3" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
-    <div style="flex: 1; min-width: 220px;">
-      <span class="p-input-icon-left" style="width: 100%;">
-      
+  <div class="search-container mb-3" [style]="{'display': 'flex', 'gap': '1rem', 'align-items': 'flex-end', 'flex-wrap': 'wrap'}">
+    <div [style]="{'flex': '1', 'min-width': '220px'}">
+      <label [style]="{'display': 'block', 'margin-bottom': '0.5rem', 'font-weight': 'bold'}">Filtrar por mes</label>
+      <p-calendar 
+        [(ngModel)]="selectedMonth" 
+        view="month" 
+        dateFormat="mm/yy"
+        [showIcon]="true"
+        placeholder="Seleccionar mes"
+        [style]="{'width': '100%'}"
+        appendTo="body">
+      </p-calendar>
+    </div>
+    <div [style]="{'flex': '1', 'min-width': '220px'}">
+      <label [style]="{'display': 'block', 'margin-bottom': '0.5rem', 'font-weight': 'bold'}">Buscar citas</label>
+      <span class="p-input-icon-left" [style]="{'width': '100%'}">
         <input 
           type="text" 
           pInputText 
           [(ngModel)]="searchText" 
           placeholder="Buscar por nombre o DNI..." 
-          class="w-full">
+          [style]="{'width': '100%'}">
       </span>
     </div>
-    <div style="min-width: 180px;">
+    <div [style]="{'min-width': '180px'}">
+      <label [style]="{'display': 'block', 'margin-bottom': '0.5rem', 'font-weight': 'bold'}">Filtrar por sala</label>
       <p-dropdown 
         [options]="getRooms().length ? getRooms() : [{label: 'Sin salas', value: ''}]" 
         [(ngModel)]="selectedRoom"
         placeholder="Filtrar por sala"
-        [style.min-width]="'180px'"
+        [style]="{'width': '100%'}"
         showClear="true">
       </p-dropdown>
     </div>
-    <div style="min-width: 180px;">
+    <div [style]="{'min-width': '180px'}">
+      <label [style]="{'display': 'block', 'margin-bottom': '0.5rem', 'font-weight': 'bold'}">Filtrar por asistencia</label>
       <p-dropdown 
         [options]="[
           {label: 'Pendiente', value: 'pending'},
@@ -31,10 +45,20 @@
         ]"
         [(ngModel)]="selectedAttendance"
         placeholder="Filtrar por asistencia"
-        [style.min-width]="'180px'"
+        [style]="{'width': '100%'}"
         showClear="true">
       </p-dropdown>
     </div>
+  </div>
+  <div [style]="{'text-align': 'right', 'margin-bottom': '1rem'}">
+    <button 
+      pButton 
+      type="button" 
+      label="Limpiar filtros" 
+      icon="pi pi-times" 
+      class="p-button-outlined p-button-secondary"
+      (click)="clearFilters()">
+    </button>
   </div>
 
   <p-table 
@@ -54,6 +78,7 @@
         <th>Teléfono</th>
         <th>Sala</th>
         <th>Combinada</th>
+        <th>Observaciones</th>
         <th>Asistencia</th>
         <th>Acciones</th>
       </tr>
@@ -72,6 +97,16 @@
           </span>
         </td>
         <td>
+          <div class="comments-cell">
+            <span *ngIf="appointment.comments; else noComments" class="comments-text">
+              {{ appointment.comments }}
+            </span>
+            <ng-template #noComments>
+              <span class="no-comments">Sin observaciones</span>
+            </ng-template>
+          </div>
+        </td>
+        <td>
           <div class="attendance-cell">
             <span [class]="'attendance-' + (appointment.attendanceStatus === 'pending' ? 'pendiente' : appointment.attendanceStatus.toLowerCase())">
               {{ attendanceStatusMap[appointment.attendanceStatus] || appointment.attendanceStatus }}
@@ -79,10 +114,13 @@
           </div>
         </td>
         <td class="actions-cell">
-          <button type="button" class="icon-btn icon-btn-danger" (click)="deleteAppointment(appointment.id)">
+          <button type="button" class="icon-btn icon-btn-edit" (click)="showEditCommentsModal(appointment)" title="Editar comentarios">
+            <i class="pi pi-pencil"></i>
+          </button>
+          <button type="button" class="icon-btn icon-btn-danger" (click)="deleteAppointment(appointment.id)" title="Eliminar cita">
             <i class="pi pi-trash"></i>
           </button>
-          <button type="button" class="icon-btn icon-btn-menu" (click)="showAttendanceMenu($event, appointment, attendanceMenu)">
+          <button type="button" class="icon-btn icon-btn-menu" (click)="showAttendanceMenu($event, appointment, attendanceMenu)" title="Cambiar estado de asistencia">
             <i class="pi pi-ellipsis-v"></i>
           </button>
         </td>
@@ -90,7 +128,7 @@
     </ng-template>
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="8" class="text-center">No se encontraron citas.</td>
+        <td colspan="9" class="text-center">No se encontraron citas.</td>
       </tr>
     </ng-template>
   </p-table>
@@ -102,4 +140,46 @@
       </button>
     </div>
   </p-overlayPanel>
+
+  <!-- Modal para editar comentarios -->
+  <p-dialog 
+    header="Editar Comentarios de la Cita" 
+    [(visible)]="displayEditCommentsModal"
+    [modal]="true"
+    [style]="{width: '40vw'}"
+    [draggable]="false"
+    [resizable]="false">
+    
+    <div class="edit-comments-content" *ngIf="selectedAppointmentForEdit">
+      <div class="comments-section">
+        <label for="editComments" class="block mb-2"><strong>Comentarios:</strong></label>
+        <textarea 
+          id="editComments"
+          pInputText 
+          [(ngModel)]="editComments" 
+          placeholder="Ingrese los comentarios de la cita..."
+          rows="6" 
+          class="w-full"
+          style="resize: vertical; min-height: 120px;">
+        </textarea>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="dialog-footer">
+        <p-button 
+          label="Cancelar" 
+          icon="pi pi-times" 
+          (onClick)="cancelEditComments()"
+          class="p-button-outlined p-button-secondary">
+        </p-button>
+        <p-button 
+          label="Guardar" 
+          icon="pi pi-check" 
+          (onClick)="saveComments()"
+          [style]="{ 'background-color': '#0C4652', 'color': '#fff', 'border': 'none' }">
+        </p-button>
+      </div>
+    </ng-template>
+  </p-dialog>
 </div>

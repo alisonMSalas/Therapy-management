@@ -21,16 +21,20 @@
   [draggable]="false"
   [resizable]="false">
   
-  <p-table [value]="appointments" [tableStyle]="{'min-width': '50rem'}" [paginator]="true" [rows]="10">
+  <p-table [value]="appointments" [tableStyle]="{'min-width': '50rem'}" [paginator]="true" [rows]="10" [sortMode]="'single'">
     <ng-template pTemplate="header">
       <tr>
-        <th>Fecha y Hora</th>
+        <th pSortableColumn="dateTime" style="min-width:100px">
+          Fecha y Hora
+          <p-sortIcon field="dateTime"></p-sortIcon>
+        </th>
         <th>Nombre</th>
         <th>DNI</th>
         <th>Email</th>
         <th>Teléfono</th>
         <th>Sala</th>
         <th>Combinada</th>
+        <th>Observaciones</th>
         <th>Asistencia</th>
         <th>Acciones</th>
       </tr>
@@ -47,6 +51,16 @@
           <span [class]="appointment.isShared ? 'combined-yes' : 'combined-no'">
             {{ appointment.isShared ? 'Sí' : 'No' }}
           </span>
+        </td>
+        <td>
+          <div class="comments-cell">
+            <span *ngIf="appointment.comments; else noComments" class="comments-text">
+              {{ appointment.comments }}
+            </span>
+            <ng-template #noComments>
+              <span class="no-comments">Sin observaciones</span>
+            </ng-template>
+          </div>
         </td>
         <td>
           <div class="attendance-cell">
@@ -75,15 +89,43 @@
   [resizable]="false">
   
   <div class="search-container mb-3">
-    <span class="p-input-icon-left w-full">
-      <i class="pi pi-search"></i>
-      <input 
-        type="text" 
-        pInputText 
-        [(ngModel)]="searchText" 
-        placeholder="Buscar por nombre, DNI, email, teléfono o fecha..." 
-        class="w-full">
-    </span>
+    <div [style]="{'display': 'flex', 'gap': '1rem', 'margin-bottom': '1rem'}">
+      <div [style]="{'flex': '1'}">
+        <label [style]="{'display': 'block', 'margin-bottom': '0.5rem', 'font-weight': 'bold'}">Filtrar por mes</label>
+        <p-calendar 
+          [(ngModel)]="selectedMonth" 
+          view="month" 
+          dateFormat="mm/yy"
+          [showIcon]="true"
+          placeholder="Seleccionar mes"
+          [style]="{'width': '100%'}"
+          (onSelect)="onMonthChange()"
+          appendTo="body">
+        </p-calendar>
+      </div>
+      <div [style]="{'flex': '1'}">
+        <label [style]="{'display': 'block', 'margin-bottom': '0.5rem', 'font-weight': 'bold'}">Buscar citas</label>
+        <span class="p-input-icon-left" [style]="{'width': '100%', 'display': 'block'}">
+          <i class="pi pi-search"></i>
+          <input 
+            type="text" 
+            pInputText 
+            [(ngModel)]="searchText" 
+            placeholder="Buscar por nombre, DNI, email, teléfono o fecha..." 
+            [style]="{'width': '100%'}">
+        </span>
+      </div>
+    </div>
+    <div [style]="{'text-align': 'right'}">
+      <button 
+        pButton 
+        type="button" 
+        label="Limpiar filtros" 
+        icon="pi pi-times" 
+        class="p-button-outlined p-button-secondary"
+        (click)="clearFilters()">
+      </button>
+    </div>
   </div>
 
   <p-table 
@@ -93,17 +135,22 @@
     [rows]="10"
     [showCurrentPageReport]="true"
     currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} citas"
-    [rowsPerPageOptions]="[10,25,50]">
+    [rowsPerPageOptions]="[10,25,50]"
+    [sortMode]="'single'">
     
     <ng-template pTemplate="header">
       <tr>
-        <th>Fecha y Hora</th>
+        <th pSortableColumn="dateTime" style="min-width:100px">
+          Fecha y Hora
+          <p-sortIcon field="dateTime"></p-sortIcon>
+        </th>
         <th>Nombre</th>
         <th>DNI</th>
         <th>Email</th>
         <th>Teléfono</th>
         <th>Sala</th>
         <th>Combinada</th>
+        <th>Observaciones</th>
         <th>Asistencia</th>
       </tr>
     </ng-template>
@@ -119,6 +166,16 @@
           <span [class]="appointment.isShared ? 'combined-yes' : 'combined-no'">
             {{ appointment.isShared ? 'Sí' : 'No' }}
           </span>
+        </td>
+        <td>
+          <div class="comments-cell">
+            <span *ngIf="appointment.comments; else noComments" class="comments-text">
+              {{ appointment.comments }}
+            </span>
+            <ng-template #noComments>
+              <span class="no-comments">Sin observaciones</span>
+            </ng-template>
+          </div>
         </td>
         <td>
           <div class="attendance-cell">
@@ -139,7 +196,7 @@
     </ng-template>
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="8" class="text-center">No se encontraron citas.</td>
+        <td colspan="9" class="text-center">No se encontraron citas.</td>
       </tr>
     </ng-template>
   </p-table>
@@ -159,39 +216,114 @@
   </div>
 
   <div class="step-content" [ngSwitch]="activeStep">
-    <!-- Paso 1: Agenda -->
+    <!-- Paso 0: Cantidad de Citas -->
     <div *ngSwitchCase="0" class="step-container">
-      <h3>Seleccionar Fecha y Hora</h3>
+      <h3>Cantidad de Citas</h3>
       <div class="grid">
         <div class="col-12 md:col-6">
-          <label>Fecha de la cita</label>
-          <p-calendar 
-            [(ngModel)]="newAppointment.date" 
-            [showIcon]="true"
-            dateFormat="dd/mm/yy"
-            [showTime]="false"
-            [minDate]="minDate"
+          <label>¿Cuántas citas desea crear?</label>
+          <input 
+            type="number" 
+            pInputText 
+            [(ngModel)]="numberOfAppointments" 
+            min="1" 
+            max="10"
             class="w-full"
-            appendTo="body">
-          </p-calendar>
+            (change)="onNumberOfAppointmentsChange()"
+            placeholder="Ingrese un número del 1 al 10">
         </div>
-        <div class="col-12 md:col-6">
-          <label>Hora de la cita</label>
-          <p-calendar 
-            [(ngModel)]="newAppointment.time"
-            [timeOnly]="true"
-            [showIcon]="true"
-            [showTime]="true"
-            [showSeconds]="false"
-            class="w-full"
-            appendTo="body">
-          </p-calendar>
+        <div class="col-12" *ngIf="numberOfAppointments > 1">
+          <div class="info-box">
+            <small class="text-info">
+              <i class="pi pi-info-circle"></i>
+              Se crearán {{ numberOfAppointments }} citas para el mismo cliente. En el siguiente paso podrá configurar cada cita individualmente.
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paso 1: Fechas, Horas y Salas -->
+    <div *ngSwitchCase="1" class="step-container">
+      <h3>Configurar Citas</h3>
+      <div *ngIf="numberOfAppointments === 1">
+        <!-- Una sola cita -->
+        <div class="grid">
+          <div class="col-12 md:col-4">
+            <label>Fecha de la cita</label>
+            <p-calendar 
+              [(ngModel)]="newAppointment.date" 
+              [showIcon]="true"
+              dateFormat="dd/mm/yy"
+              [showTime]="false"
+              [minDate]="minDate"
+              class="w-full"
+              (onSelect)="onDateChange()"
+              appendTo="body">
+            </p-calendar>
+          </div>
+          <div class="col-12 md:col-4">
+            <label>Hora de la cita</label>
+            <input 
+              type="time" 
+              [(ngModel)]="newAppointment.timeString"
+              class="w-full p-inputtext"
+              (change)="onTimeStringChange()"
+              [style]="{'padding': '0.5rem', 'border': '1px solid #ced4da', 'border-radius': '4px'}">
+          </div>
+          <div class="col-12 md:col-4">
+            <label>Seleccionar Sala</label>
+            <p-dropdown 
+              [options]="rooms" 
+              [(ngModel)]="newAppointment.roomNumber"
+              placeholder="Seleccione una sala"
+              class="w-full">
+            </p-dropdown>
+          </div>
+        </div>
+      </div>
+      
+      <div *ngIf="numberOfAppointments > 1">
+        <!-- Múltiples citas -->
+        <div *ngFor="let appointment of multipleAppointments; let i = index" class="appointment-item mb-4">
+          <h4>Cita {{ i + 1 }}</h4>
+          <div class="grid">
+            <div class="col-12 md:col-4">
+              <label>Fecha</label>
+              <p-calendar 
+                [(ngModel)]="appointment.date" 
+                [showIcon]="true"
+                dateFormat="dd/mm/yy"
+                [showTime]="false"
+                [minDate]="minDate"
+                class="w-full"
+                appendTo="body">
+              </p-calendar>
+            </div>
+            <div class="col-12 md:col-4">
+              <label>Hora</label>
+              <input 
+                type="time" 
+                [(ngModel)]="appointment.timeString"
+                class="w-full p-inputtext"
+                [style]="{'padding': '0.5rem', 'border': '1px solid #ced4da', 'border-radius': '4px'}">
+            </div>
+            <div class="col-12 md:col-4">
+              <label>Sala</label>
+              <p-dropdown 
+                [options]="rooms" 
+                [(ngModel)]="appointment.roomNumber"
+                placeholder="Seleccione una sala"
+                class="w-full">
+              </p-dropdown>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Paso 2: Datos del Cliente -->
-    <div *ngSwitchCase="1" class="step-container">
+    <div *ngSwitchCase="2" class="step-container">
       <h3>Datos del Cliente</h3>
       <div class="grid">
         <div class="col-12" style="display: flex; align-items: end; gap: 0.5rem;">
@@ -223,44 +355,66 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Paso 3: Información de la Cita -->
-    <div *ngSwitchCase="2" class="step-container">
-      <h3>Detalles de la Cita</h3>
-      <div class="grid">
-        <div class="col-12 md:col-6">
-          <label>Seleccionar Sala</label>
-          <p-dropdown 
-            [options]="rooms" 
-            [(ngModel)]="newAppointment.roomNumber"
-            placeholder="Seleccione una sala"
-            class="w-full">
-          </p-dropdown>
-        </div>
-        <div class="col-12 md:col-6">
-          <label>Combinada</label>
-          <div class="flex gap-4">
-            <div class="flex align-items-center">
-              <p-radioButton 
-                [value]="false" 
-                [(ngModel)]="newAppointment.isCombined" 
-                inputId="individual">
-              </p-radioButton>
-              <label for="individual" class="ml-2">Si</label>
-            </div>
-            <div class="flex align-items-center">
-              <p-radioButton 
-                [value]="true" 
-                [(ngModel)]="newAppointment.isCombined" 
-                inputId="combined">
-              </p-radioButton>
-              <label for="combined" class="ml-2">No</label>
+      
+      <div class="appointment-details">
+        <h4>Detalles de la Cita</h4>
+        <div class="grid">
+          <div class="col-12">
+            <label>Combinada</label>
+            <div class="flex gap-4">
+              <div class="flex align-items-center">
+                <p-radioButton 
+                  [value]="false" 
+                  [(ngModel)]="newAppointment.isCombined" 
+                  inputId="individual">
+                </p-radioButton>
+                <label for="individual" class="ml-2">Si</label>
+              </div>
+              <div class="flex align-items-center">
+                <div class="flex align-items-center">
+                  <p-radioButton 
+                    [value]="true" 
+                    [(ngModel)]="newAppointment.isCombined" 
+                    inputId="combined">
+                  </p-radioButton>
+                  <label for="combined" class="ml-2">No</label>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Paso 3: Observaciones -->
+    <div *ngSwitchCase="3" class="step-container">
+      <h3>Observaciones de la Cita</h3>
+      <div class="grid">
+        <div class="col-12">
+          <label>Observaciones (opcional)</label>
+          <textarea 
+            pInputText 
+            [(ngModel)]="newAppointment.comments" 
+            placeholder="Ingrese observaciones adicionales sobre la cita..."
+            rows="4" 
+            class="w-full"
+            style="resize: vertical; min-height: 100px;">
+          </textarea>
+        </div>
+      </div>
+      
+      <!-- Información para citas múltiples -->
+      <div *ngIf="numberOfAppointments > 1" class="multiple-observations mt-4">
+        <div class="info-box">
+          <small class="text-info">
+            <i class="pi pi-info-circle"></i>
+            Las observaciones ingresadas se aplicarán a todas las {{ numberOfAppointments }} citas que se crearán.
+          </small>
+        </div>
+      </div>
+    </div>
+
+
   </div>
 
   <div class="dialog-footer">
@@ -272,20 +426,20 @@
       [style]="{ 'background-color': '#0C4652', 'color': '#fff', 'border': 'none' }">
     </p-button>
     <p-button 
-      *ngIf="activeStep < 2" 
+      *ngIf="activeStep < 3" 
       label="Siguiente" 
       icon="pi pi-chevron-right" 
       iconPos="right"
       (onClick)="nextStep()"
-      [disabled]="(activeStep === 1 && !newAppointment.patient)"
+      [disabled]="(activeStep === 0 && (numberOfAppointments < 1 || numberOfAppointments > 10))"
       [style]="{ 'background-color': '#0C4652', 'color': '#fff', 'border': 'none' }">
     </p-button>
     <p-button 
-      *ngIf="activeStep === 2" 
-      label="Guardar Cita" 
+      *ngIf="activeStep === 3" 
+      label="Guardar Cita(s)" 
       icon="pi pi-check" 
       (onClick)="saveAppointment()"
-      [disabled]="!newAppointment.roomNumber"
+      [disabled]="!newAppointment.patient"
       [style]="{ 'background-color': '#0C4652', 'color': '#fff', 'border': 'none' }">
     </p-button>
   </div>

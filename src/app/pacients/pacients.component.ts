@@ -37,6 +37,7 @@ export class PacientsComponent implements OnInit{
   displayDetailDialog: boolean = false;
   cedulaInvalida: boolean = false;
   telefonoInvalido: boolean = false;
+  cedulaDuplicada: boolean = false;
 
   constructor(
     private clientsService: ClientsService,
@@ -45,6 +46,10 @@ export class PacientsComponent implements OnInit{
   ) {}
 
   private resetPatient(): Patient {
+    this.cedulaInvalida = false;
+    this.cedulaDuplicada = false;
+    this.telefonoInvalido = false;
+    
     return {
       identification_number: '',
       full_name: '',
@@ -89,18 +94,27 @@ export class PacientsComponent implements OnInit{
   showAddDialog() {
     this.isEditMode = false;
     this.currentPatient = this.resetPatient();
+    this.cedulaInvalida = false;
+    this.cedulaDuplicada = false;
+    this.telefonoInvalido = false;
     this.displayDialog = true;
   }
 
   showEditDialog(patient: Patient) {
     this.isEditMode = true;
     this.currentPatient = { ...patient };
+    this.cedulaInvalida = false;
+    this.cedulaDuplicada = false;
+    this.telefonoInvalido = false;
     this.displayDialog = true;
   }
 
   cancelDialog() {
     this.displayDialog = false;
     this.currentPatient = this.resetPatient();
+    this.cedulaInvalida = false;
+    this.cedulaDuplicada = false;
+    this.telefonoInvalido = false;
   }
 
   savePatient() {
@@ -108,6 +122,50 @@ export class PacientsComponent implements OnInit{
       this.messageService.showError('La cédula ingresada no es válida.');
       return;
     }
+
+    // Validar que la cédula no esté duplicada (solo para crear nuevo paciente)
+    if (!this.isEditMode && this.isCedulaDuplicate(this.currentPatient.identification_number)) {
+      this.messageService.showError('La cédula ingresada ya existe en otro paciente.');
+      return;
+    }
+
+    // Validar que la cédula no esté duplicada en edición (excluyendo el paciente actual)
+    if (this.isEditMode && this.isCedulaDuplicate(this.currentPatient.identification_number, this.currentPatient.id)) {
+      this.messageService.showError('La cédula ingresada ya existe en otro paciente.');
+      return;
+    }
+    
+    // Validar que todos los campos obligatorios estén llenos
+    if (!this.currentPatient.full_name || !this.currentPatient.full_name.trim()) {
+      this.messageService.showError('El nombre completo es obligatorio.');
+      return;
+    }
+    
+    if (!this.currentPatient.email || !this.currentPatient.email.trim()) {
+      this.messageService.showError('El email es obligatorio.');
+      return;
+    }
+    
+    if (!this.currentPatient.phone_number || !this.currentPatient.phone_number.trim()) {
+      this.messageService.showError('El teléfono es obligatorio.');
+      return;
+    }
+    
+    if (!this.currentPatient.emergency_phone_number || !this.currentPatient.emergency_phone_number.trim()) {
+      this.messageService.showError('El teléfono de emergencia es obligatorio.');
+      return;
+    }
+    
+    if (!this.currentPatient.address || !this.currentPatient.address.trim()) {
+      this.messageService.showError('La dirección es obligatoria.');
+      return;
+    }
+    
+    if (!this.currentPatient.age || this.currentPatient.age <= 0) {
+      this.messageService.showError('La edad es obligatoria y debe ser mayor a 0.');
+      return;
+    }
+
     const client = this.patientToClient(this.currentPatient);
     if (this.isEditMode && this.currentPatient.id) {
       this.clientsService.updateClient(this.currentPatient.id, client).subscribe({
@@ -182,9 +240,26 @@ export class PacientsComponent implements OnInit{
     if (value.length > 10) {
       this.currentPatient.identification_number = value.slice(0, 10);
     }
+    
+    // Validar formato de cédula
     this.cedulaInvalida =
       this.currentPatient.identification_number.length === 10 &&
       !this.isValidEcuadorianID(this.currentPatient.identification_number);
+    
+    // Validar duplicados en tiempo real (solo si la cédula es válida)
+    if (this.currentPatient.identification_number.length === 10 && !this.cedulaInvalida) {
+      if (!this.isEditMode && this.isCedulaDuplicate(this.currentPatient.identification_number)) {
+        this.cedulaDuplicada = true;
+        this.messageService.showError('La cédula ingresada ya existe en otro paciente.');
+      } else if (this.isEditMode && this.isCedulaDuplicate(this.currentPatient.identification_number, this.currentPatient.id)) {
+        this.cedulaDuplicada = true;
+        this.messageService.showError('La cédula ingresada ya existe en otro paciente.');
+      } else {
+        this.cedulaDuplicada = false;
+      }
+    } else {
+      this.cedulaDuplicada = false;
+    }
   }
 
   onTelefonoChange(value: string, field: 'phone_number' | 'emergency_phone_number') {
@@ -193,6 +268,14 @@ export class PacientsComponent implements OnInit{
     }
     this.telefonoInvalido =
       this.currentPatient.phone_number.length > 0 && this.currentPatient.phone_number.length < 10;
+  }
+
+  // Función para verificar si la cédula ya existe
+  private isCedulaDuplicate(cedula: string, excludePatientId?: any): boolean {
+    return this.patients.some(patient => 
+      patient.identification_number === cedula && 
+      (!excludePatientId || patient.id !== excludePatientId)
+    );
   }
 
   // Conversión entre Patient (frontend) y Client (backend)

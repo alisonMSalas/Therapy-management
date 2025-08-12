@@ -201,9 +201,11 @@ export class HomeComponent implements OnInit {
       const selectedMonthIndex = this.selectedMonth.getMonth();
       
       filteredAppointments = filteredAppointments.filter(appointment => {
-        const appointmentDate = new Date(appointment.dateTime);
-        return appointmentDate.getFullYear() === selectedYear && 
-               appointmentDate.getMonth() === selectedMonthIndex;
+        // Extraer fecha directamente del string ISO sin crear objeto Date
+        const [datePart] = appointment.dateTime.split('T');
+        if (!datePart) return false;
+        const [year, month, day] = datePart.split('-').map(Number);
+        return year === selectedYear && month === selectedMonthIndex + 1;
       });
     }
 
@@ -302,18 +304,23 @@ export class HomeComponent implements OnInit {
   }
 
   getLocalDateTime(dateTime: string): string {
-    const date = new Date(dateTime);
-    return date.toLocaleString('es-EC', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    // Extraer fecha y hora directamente del string ISO sin crear objeto Date
+    const [datePart, timePart] = dateTime.split('T');
+    if (!datePart || !timePart) return dateTime;
+    
+    const [year, month, day] = datePart.split('-');
+    const [hour, minute] = timePart.split(':');
+    
+    // Formatear como dd/MM/yyyy HH:mm
+    const formattedDate = `${day}/${month}/${year}`;
+    const formattedTime = `${hour}:${minute}`;
+    
+    return `${formattedDate} ${formattedTime}`;
   }
 
   getRawHourMinute(dateTime: string): string {
     // dateTime: "2025-07-17T14:30:00.000Z"
+    // Extraer solo la hora y minutos del string ISO sin crear objeto Date
     const [_, timeWithMs] = dateTime.split('T');
     if (!timeWithMs) return '';
     const [hourStr, minuteStr] = timeWithMs.split(':');
@@ -325,13 +332,35 @@ export class HomeComponent implements OnInit {
   }
 
   getHourAMPM(dateTime: string): string {
-    const date = new Date(dateTime);
-    let hours = date.getHours();
-    const minutes = String(date.getMinutes()).padStart(2, '0');
+    // Extraer hora y minutos directamente del string ISO sin crear objeto Date
+    const [_, timePart] = dateTime.split('T');
+    if (!timePart) return dateTime;
+    
+    const [hourStr, minuteStr] = timePart.split(':');
+    let hours = Number(hourStr);
+    const minutes = minuteStr.split('.')[0]; // Remover milisegundos
+    
     const ampm = hours >= 12 ? 'pm' : 'am';
     hours = hours % 12;
     hours = hours ? hours : 12; // el 0 debe ser 12
     return `${hours}:${minutes} ${ampm}`;
+  }
+
+  // Nueva función para mostrar fecha y hora sin conversión de zona horaria
+  getLocalDateTimeNoConversion(dateTime: string): string {
+    // dateTime: "2025-07-17T14:30:00.000Z"
+    // Extraer fecha y hora directamente del string ISO
+    const [datePart, timePart] = dateTime.split('T');
+    if (!datePart || !timePart) return dateTime;
+    
+    const [year, month, day] = datePart.split('-');
+    const [hour, minute] = timePart.split(':');
+    
+    // Formatear como dd/MM/yyyy HH:mm
+    const formattedDate = `${day}/${month}/${year}`;
+    const formattedTime = `${hour}:${minute}`;
+    
+    return `${formattedDate} ${formattedTime}`;
   }
 
   showNewAppointmentModal() {
@@ -526,12 +555,12 @@ export class HomeComponent implements OnInit {
       hours, minutes
     );
     
-    // Construir dateTime para el backend (con ajuste de zona horaria)
+    // Construir dateTime para el backend (sin ajuste de zona horaria)
     const backendDateTime = new Date(
       date.getFullYear(), date.getMonth(), date.getDate(),
       hours, minutes
     );
-    backendDateTime.setHours(backendDateTime.getHours() - 5); // Ajuste por zona horaria Ecuador
+    // No hacer ajuste de zona horaria - el backend debe manejarlo
     
     const dateTimeForValidation = localDateTime.getFullYear() + '-' +
       String(localDateTime.getMonth() + 1).padStart(2, '0') + '-' +
@@ -621,12 +650,12 @@ export class HomeComponent implements OnInit {
       const timeString = appointment.timeString;
       const [hours, minutes] = timeString.split(':').map(Number);
       
-      // Construir dateTime para el backend (con ajuste de zona horaria)
+      // Construir dateTime para el backend (sin ajuste de zona horaria)
       const backendDateTime = new Date(
         date.getFullYear(), date.getMonth(), date.getDate(),
         hours, minutes
       );
-      backendDateTime.setHours(backendDateTime.getHours() - 5); // Ajuste por zona horaria Ecuador
+      // No hacer ajuste de zona horaria - el backend debe manejarlo
       
       const dateTimeForBackend = backendDateTime.getFullYear() + '-' +
         String(backendDateTime.getMonth() + 1).padStart(2, '0') + '-' +

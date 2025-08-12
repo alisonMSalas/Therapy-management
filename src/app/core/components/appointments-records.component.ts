@@ -78,9 +78,11 @@ export class AppointmentsRecordsComponent implements OnInit {
       const selectedMonthIndex = this.selectedMonth.getMonth();
       
       filtered = filtered.filter(appointment => {
-        const appointmentDate = new Date(appointment.dateTime);
-        return appointmentDate.getFullYear() === selectedYear && 
-               appointmentDate.getMonth() === selectedMonthIndex;
+        // Extraer fecha directamente del string ISO sin crear objeto Date
+        const [datePart] = appointment.dateTime.split('T');
+        if (!datePart) return false;
+        const [year, month, day] = datePart.split('-').map(Number);
+        return year === selectedYear && month === selectedMonthIndex + 1;
       });
     }
 
@@ -188,5 +190,22 @@ export class AppointmentsRecordsComponent implements OnInit {
     this.selectedRoom = '';
     this.selectedAttendance = '';
     this.selectedMonth = new Date();
+  }
+
+  // Función para mostrar fecha y hora sin conversión de zona horaria
+  getLocalDateTimeNoConversion(dateTime: string): string {
+    // dateTime: "2025-07-17T14:30:00.000Z"
+    // Extraer fecha y hora directamente del string ISO
+    const [datePart, timePart] = dateTime.split('T');
+    if (!datePart || !timePart) return dateTime;
+    
+    const [year, month, day] = datePart.split('-');
+    const [hour, minute] = timePart.split(':');
+    
+    // Formatear como dd/MM/yyyy HH:mm
+    const formattedDate = `${day}/${month}/${year}`;
+    const formattedTime = `${hour}:${minute}`;
+    
+    return `${formattedDate} ${formattedTime}`;
   }
 }

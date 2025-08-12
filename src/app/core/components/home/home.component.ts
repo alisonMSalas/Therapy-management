@@ -13,6 +13,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { StepsModule } from 'primeng/steps';
 import { MenuItem } from 'primeng/api';
 import { AutoCompleteModule } from 'primeng/autocomplete';
@@ -49,6 +50,7 @@ type AppointmentsByDate = {
     FormsModule,
     CalendarModule,
     InputTextModule,
+    InputNumberModule,
     StepsModule,
     AutoCompleteModule,
     RadioButtonModule,
@@ -716,19 +718,25 @@ export class HomeComponent implements OnInit {
     if (!found && this.searchIdNumber) {
       const confirmed = await this.confirmService.confirmInfo('No se encontró el paciente. ¿Desea agregarlo?');
       if (confirmed) {
-        this.currentPatient = {
-          identification_number: this.searchIdNumber,
-          full_name: '',
-          phone_number: '',
-          emergency_phone_number: '',
-          email: '',
-          address: '',
-          age: 0,
-          created_at: ''
-        };
+        this.resetCurrentPatient();
         this.displayPatientDialog = true;
       }
     }
+  }
+
+  private resetCurrentPatient() {
+    this.currentPatient = {
+      identification_number: this.searchIdNumber,
+      full_name: '',
+      phone_number: '',
+      emergency_phone_number: '',
+      email: '',
+      address: '',
+      age: 0,
+      created_at: ''
+    };
+    this.cedulaInvalida = false;
+    this.telefonoInvalido = false;
   }
 
   savePatientFromCita() {
@@ -763,10 +771,8 @@ export class HomeComponent implements OnInit {
       return;
     }
     
-    if (!this.currentPatient.age || this.currentPatient.age <= 0) {
-      this.messageService.showError('La edad es obligatoria y debe ser mayor a 0.');
-      return;
-    }
+    // La edad es opcional, si no se proporciona se guarda como 0
+    const age = this.currentPatient.age && this.currentPatient.age > 0 ? this.currentPatient.age : 0;
     
     const client = {
       idNumber: this.currentPatient.identification_number,
@@ -775,7 +781,7 @@ export class HomeComponent implements OnInit {
       phone: this.currentPatient.phone_number,
       emergencyPhone: this.currentPatient.emergency_phone_number,
       address: this.currentPatient.address,
-      age: this.currentPatient.age
+      age: age
     };
     this.clientsService.createClient(client).subscribe({
       next: () => {

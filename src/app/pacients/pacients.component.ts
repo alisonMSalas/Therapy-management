@@ -197,7 +197,7 @@ export class PacientsComponent implements OnInit{
     const province = parseInt(cedula.substring(0, 2), 10);
     if (province < 1 || province > 24) return false;
     const thirdDigit = parseInt(cedula[2], 10);
-    if (thirdDigit >= 6) return false;
+    if (thirdDigit > 9) return false;
     let sum = 0;
     for (let i = 0; i < 9; i++) {
       let digit = parseInt(cedula[i], 10);

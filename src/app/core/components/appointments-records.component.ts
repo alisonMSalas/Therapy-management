@@ -3,18 +3,20 @@ import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
-import { AppointmentsService, Appointment as BackendAppointment } from './home/services/appointments.service';
+import { CalendarModule } from 'primeng/calendar';
+import { ButtonModule } from 'primeng/button';
+import { AppointmentsService, Appointment as BackendAppointment, UpdateCommentsDto } from './home/services/appointments.service';
 import { AppMessageService } from '../../core/services/message.service';
 import { InputTextModule } from 'primeng/inputtext';
 import { ConfirmService } from '../../core/services/confirm.service';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { ViewChild } from '@angular/core';
-
+import { DialogModule } from 'primeng/dialog';
 
 @Component({
   selector: 'app-appointments-records',
   standalone: true,
-  imports: [CommonModule, TableModule, DropdownModule, FormsModule, InputTextModule, OverlayPanelModule],
+  imports: [CommonModule, TableModule, DropdownModule, FormsModule, CalendarModule, ButtonModule, InputTextModule, OverlayPanelModule, DialogModule],
   templateUrl: './appointments-records.component.html',
   styleUrl: './appointments-records.component.css'
 })
@@ -23,8 +25,14 @@ export class AppointmentsRecordsComponent implements OnInit {
   searchText: string = '';
   selectedRoom: string = '';
   selectedAttendance: string = '';
+  selectedMonth: Date = new Date();
   selectedAppointmentForMenu: BackendAppointment | null = null;
   @ViewChild('attendanceMenu') attendanceMenu: any;
+
+  // Propiedades para editar comentarios
+  displayEditCommentsModal: boolean = false;
+  selectedAppointmentForEdit: BackendAppointment | null = null;
+  editComments: string = '';
 
   attendanceOptions = [
     { label: 'Confirmado', value: 'confirmed' },
@@ -63,6 +71,20 @@ export class AppointmentsRecordsComponent implements OnInit {
 
   filterAppointments(): BackendAppointment[] {
     let filtered = this.allAppointments;
+
+    // Filtro por mes
+    if (this.selectedMonth) {
+      const selectedYear = this.selectedMonth.getFullYear();
+      const selectedMonthIndex = this.selectedMonth.getMonth();
+      
+      filtered = filtered.filter(appointment => {
+        const appointmentDate = new Date(appointment.dateTime);
+        return appointmentDate.getFullYear() === selectedYear && 
+               appointmentDate.getMonth() === selectedMonthIndex;
+      });
+    }
+
+    // Filtro por texto de búsqueda
     const searchLower = this.searchText.toLowerCase();
     if (this.searchText) {
       filtered = filtered.filter(appointment => 
@@ -70,12 +92,17 @@ export class AppointmentsRecordsComponent implements OnInit {
         appointment.client.fullName.toLowerCase().includes(searchLower)
       );
     }
+
+    // Filtro por sala
     if (this.selectedRoom) {
       filtered = filtered.filter(appointment => appointment.room.name === this.selectedRoom);
     }
+
+    // Filtro por asistencia
     if (this.selectedAttendance) {
       filtered = filtered.filter(appointment => appointment.attendanceStatus === this.selectedAttendance);
     }
+
     return filtered;
   }
 
@@ -117,5 +144,49 @@ export class AppointmentsRecordsComponent implements OnInit {
     if (this.attendanceMenu) {
       this.attendanceMenu.hide();
     }
+  }
+
+  // Métodos para editar comentarios
+  showEditCommentsModal(appointment: BackendAppointment) {
+    this.selectedAppointmentForEdit = appointment;
+    this.editComments = appointment.comments || '';
+    this.displayEditCommentsModal = true;
+  }
+
+  saveComments() {
+    if (!this.selectedAppointmentForEdit) return;
+
+    const updateCommentsDto: UpdateCommentsDto = {
+      comments: this.editComments
+    };
+
+    this.appointmentsService.updateComments(this.selectedAppointmentForEdit.id, updateCommentsDto).subscribe({
+      next: () => {
+        // Actualizar el comentario en la lista local
+        if (this.selectedAppointmentForEdit) {
+          this.selectedAppointmentForEdit.comments = this.editComments;
+        }
+        this.messageService.showSuccess('Comentarios actualizados correctamente');
+        this.displayEditCommentsModal = false;
+        this.selectedAppointmentForEdit = null;
+        this.editComments = '';
+      },
+      error: () => {
+        this.messageService.showError('Error al actualizar los comentarios');
+      }
+    });
+  }
+
+  cancelEditComments() {
+    this.displayEditCommentsModal = false;
+    this.selectedAppointmentForEdit = null;
+    this.editComments = '';
+  }
+
+  clearFilters() {
+    this.searchText = '';
+    this.selectedRoom = '';
+    this.selectedAttendance = '';
+    this.selectedMonth = new Date();
   }
 }

@@ -69,6 +69,14 @@
   background: #FFCDD2;
 }
 
+.icon-btn-edit i {
+  color: #FBC02D;
+  font-size: 1rem;
+}
+.icon-btn-edit:hover {
+  background: #FFF9C4;
+}
+
 .icon-btn-menu i {
   color: #616161;
   font-size: 1rem;
@@ -98,4 +106,59 @@
   display: flex;
   align-items: center;
   gap: 0.3rem;
+}
+
+/* Estilos para el modal de edición de comentarios */
+.edit-comments-content {
+  padding: 1rem 0;
+}
+
+.comments-section label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.comments-section textarea {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 0.75rem;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.comments-section textarea:focus {
+  border-color: #0C4652;
+  box-shadow: 0 0 0 0.2rem rgba(12, 70, 82, 0.25);
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 1rem;
+}
+
+/* Estilos para la columna de observaciones */
+.comments-cell {
+  width: 200px;
+  max-width: 200px;
+  min-width: 200px;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.comments-text {
+  font-weight: bold;
+  display: block;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.no-comments {
+  font-weight: bold;
+  color: #666;
+  display: block;
 }

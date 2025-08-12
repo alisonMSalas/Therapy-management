@@ -97,6 +97,21 @@
   border-radius: 4px;
 }
 
+/* Estilos para la columna de observaciones */
+.comments-cell {
+  max-width: 200px;
+  word-wrap: break-word;
+}
+
+.comments-text {
+  font-weight: bold;
+}
+
+.no-comments {
+  font-weight: bold;
+  color: #666;
+}
+
 :host ::ng-deep .p-datatable .p-datatable-header {
   background: #f8f9fa;
   padding: 1rem;
@@ -151,6 +166,19 @@
   margin-bottom: 1rem;
 }
 
+.appointment-details {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 3px solid #0C4652;
+}
+
+.appointment-details h4 {
+  color: #495057;
+  margin-bottom: 1rem;
+}
+
 .dialog-footer {
   display: flex;
   justify-content: flex-end;
@@ -184,8 +212,13 @@
   padding: 0.5rem;
 }
 
+.md\:col-4 {
+  flex: 0 0 33.333333%;
+  padding: 0.5rem;
+}
+
 @media screen and (max-width: 768px) {
-  .md\:col-6 {
+  .md\:col-6, .md\:col-4 {
     flex: 0 0 100%;
   }
 }
@@ -195,6 +228,44 @@
   color: black;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
+}
+
+.validation-info {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: #e3f2fd;
+  border-radius: 4px;
+  border-left: 3px solid #2196f3;
+}
+
+.info-box {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #e8f5e8;
+  border-radius: 8px;
+  border-left: 3px solid #4caf50;
+}
+
+.appointment-item {
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #fafafa;
+}
+
+.appointment-item h4 {
+  margin-bottom: 1rem;
+  color: #0C4652;
+  font-size: 1.1rem;
+}
+
+.validation-info small {
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.validation-info i {
+  margin-right: 0.25rem;
 }
 
 .actions-cell {

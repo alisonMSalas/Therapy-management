@@ -135,14 +135,9 @@ export class PacientsComponent implements OnInit{
       return;
     }
     
-    // Validar que todos los campos obligatorios estén llenos
+    // Validar solo los campos obligatorios
     if (!this.currentPatient.full_name || !this.currentPatient.full_name.trim()) {
       this.messageService.showError('El nombre completo es obligatorio.');
-      return;
-    }
-    
-    if (!this.currentPatient.email || !this.currentPatient.email.trim()) {
-      this.messageService.showError('El email es obligatorio.');
       return;
     }
     
@@ -151,22 +146,13 @@ export class PacientsComponent implements OnInit{
       return;
     }
     
-    if (!this.currentPatient.emergency_phone_number || !this.currentPatient.emergency_phone_number.trim()) {
-      this.messageService.showError('El teléfono de emergencia es obligatorio.');
-      return;
-    }
-    
-    if (!this.currentPatient.address || !this.currentPatient.address.trim()) {
-      this.messageService.showError('La dirección es obligatoria.');
-      return;
-    }
-    
-    if (!this.currentPatient.age || this.currentPatient.age <= 0) {
-      this.messageService.showError('La edad es obligatoria y debe ser mayor a 0.');
-      return;
-    }
+    // Los demás campos son opcionales, se guardan con valores por defecto si están vacíos
+    const email = this.currentPatient.email && this.currentPatient.email.trim() ? this.currentPatient.email.trim() : 'Sin email';
+    const emergencyPhone = this.currentPatient.emergency_phone_number && this.currentPatient.emergency_phone_number.trim() ? this.currentPatient.emergency_phone_number.trim() : 'Sin teléfono de emergencia';
+    const address = this.currentPatient.address && this.currentPatient.address.trim() ? this.currentPatient.address.trim() : 'Sin dirección';
+    const age = this.currentPatient.age && this.currentPatient.age > 0 ? this.currentPatient.age : 0;
 
-    const client = this.patientToClient(this.currentPatient);
+    const client = this.patientToClient(this.currentPatient, email, emergencyPhone, address, age);
     if (this.isEditMode && this.currentPatient.id) {
       this.clientsService.updateClient(this.currentPatient.id, client).subscribe({
         next: () => {
@@ -280,15 +266,15 @@ export class PacientsComponent implements OnInit{
     };
   }
 
-  private patientToClient(patient: Patient): Client {
+  private patientToClient(patient: Patient, email?: string, emergencyPhone?: string, address?: string, age?: number): Client {
     return {
       idNumber: patient.identification_number,
       fullName: patient.full_name,
-      email: patient.email,
+      email: email || patient.email,
       phone: patient.phone_number,
-      emergencyPhone: patient.emergency_phone_number,
-      address: patient.address,
-      age: patient.age
+      emergencyPhone: emergencyPhone || patient.emergency_phone_number,
+      address: address || patient.address,
+      age: age !== undefined ? age : patient.age
     };
   }
 }

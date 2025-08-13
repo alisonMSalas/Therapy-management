@@ -97,6 +97,12 @@
   border-radius: 4px;
 }
 
+/* Estilos para campos obligatorios */
+.text-danger {
+  color: #dc3545 !important;
+  font-weight: bold;
+}
+
 /* Estilos para la columna de observaciones */
 .comments-cell {
   max-width: 200px;

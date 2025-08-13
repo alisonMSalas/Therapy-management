@@ -726,14 +726,9 @@ export class HomeComponent implements OnInit {
       return;
     }
     
-    // Validar que todos los campos obligatorios estén llenos
+    // Validar solo los campos obligatorios
     if (!this.currentPatient.full_name || !this.currentPatient.full_name.trim()) {
       this.messageService.showError('El nombre completo es obligatorio.');
-      return;
-    }
-    
-    if (!this.currentPatient.email || !this.currentPatient.email.trim()) {
-      this.messageService.showError('El email es obligatorio.');
       return;
     }
     
@@ -742,26 +737,19 @@ export class HomeComponent implements OnInit {
       return;
     }
     
-    if (!this.currentPatient.emergency_phone_number || !this.currentPatient.emergency_phone_number.trim()) {
-      this.messageService.showError('El teléfono de emergencia es obligatorio.');
-      return;
-    }
-    
-    if (!this.currentPatient.address || !this.currentPatient.address.trim()) {
-      this.messageService.showError('La dirección es obligatoria.');
-      return;
-    }
-    
-    // La edad es opcional, si no se proporciona se guarda como 0
+    // Los demás campos son opcionales, se guardan con valores por defecto si están vacíos
+    const email = this.currentPatient.email && this.currentPatient.email.trim() ? this.currentPatient.email.trim() : 'Sin email';
+    const emergencyPhone = this.currentPatient.emergency_phone_number && this.currentPatient.emergency_phone_number.trim() ? this.currentPatient.emergency_phone_number.trim() : 'Sin teléfono de emergencia';
+    const address = this.currentPatient.address && this.currentPatient.address.trim() ? this.currentPatient.address.trim() : 'Sin dirección';
     const age = this.currentPatient.age && this.currentPatient.age > 0 ? this.currentPatient.age : 0;
     
     const client = {
       idNumber: this.currentPatient.identification_number,
       fullName: this.currentPatient.full_name,
-      email: this.currentPatient.email,
+      email: email,
       phone: this.currentPatient.phone_number,
-      emergencyPhone: this.currentPatient.emergency_phone_number,
-      address: this.currentPatient.address,
+      emergencyPhone: emergencyPhone,
+      address: address,
       age: age
     };
     this.clientsService.createClient(client).subscribe({

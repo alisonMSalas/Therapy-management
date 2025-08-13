@@ -450,10 +450,16 @@
   [resizable]="false" class="elegant-dialog">
 
   <div class="p-fluid elegant-form">
+    <div class="info-box mb-4">
+      <small class="text-info">
+        <i class="pi pi-info-circle"></i>
+        Los campos marcados con <span class="text-danger">*</span> son obligatorios. Los demás son opcionales.
+      </small>
+    </div>
     <div class="field mb-4">
       <span class="p-float-label">
         <label for="full_name">
-          <i class="pi pi-user mr-2 mb-2"></i>Nombre Completo
+          <i class="pi pi-user mr-2 mb-2"></i>Nombre Completo <span class="text-danger">*</span>
         </label>
         <input id="full_name" type="text" pInputText [(ngModel)]="currentPatient.full_name" class="w-full" />
       </span>
@@ -463,7 +469,7 @@
         <div class="field">
           <span class="p-float-label">
             <label for="identification_number">
-              <i class="pi pi-id-card mr-2 mb-2"></i>Identificación
+              <i class="pi pi-id-card mr-2 mb-2"></i>Identificación <span class="text-danger">*</span>
             </label>
             <input id="identification_number" type="text" pInputText maxlength="10"
               [(ngModel)]="currentPatient.identification_number"
@@ -477,7 +483,7 @@
         <div class="field">
           <span class="p-float-label">
             <label for="phone_number">
-              <i class="pi pi-phone mr-2 mb-2"></i>Teléfono
+              <i class="pi pi-phone mr-2 mb-2"></i>Teléfono <span class="text-danger">*</span>
             </label>
             <input id="phone_number" type="text" pInputText maxlength="10"
               [(ngModel)]="currentPatient.phone_number"
@@ -491,7 +497,7 @@
         <div class="field">
           <span class="p-float-label">
             <label for="emergency_phone_number">
-              <i class="pi pi-exclamation-circle mr-2 mb-2"></i>Tel. Emergencia
+              <i class="pi pi-exclamation-circle mr-2 mb-2"></i>Tel. Emergencia (Opcional)
             </label>
             <input id="emergency_phone_number" type="text" pInputText maxlength="10"
               [(ngModel)]="currentPatient.emergency_phone_number"
@@ -506,7 +512,7 @@
         <div class="field">
           <span class="p-float-label">
             <label for="email">
-              <i class="pi pi-envelope mr-2 mb-2"></i>Email
+              <i class="pi pi-envelope mr-2 mb-2"></i>Email (Opcional)
             </label>
             <input id="email" type="email" pInputText [(ngModel)]="currentPatient.email" class="w-full" />
           </span>
@@ -516,7 +522,7 @@
         <div class="field">
           <span class="p-float-label">
             <label for="address">
-              <i class="pi pi-home mr-2 mb-2"></i>Dirección
+              <i class="pi pi-home mr-2 mb-2"></i>Dirección (Opcional)
             </label>
             <input id="address" type="text" pInputText [(ngModel)]="currentPatient.address" class="w-full" />
           </span>
@@ -531,7 +537,6 @@
             <p-inputnumber id="age" inputId="integeronly" [(ngModel)]="currentPatient.age" class="w-full" min="0"
               max="120" placeholder="0" />
           </span>
-          
         </div>
       </div>
     </div>

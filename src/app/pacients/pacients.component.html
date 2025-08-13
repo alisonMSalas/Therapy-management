@@ -48,10 +48,12 @@
 
   <div class="p-fluid elegant-form">
 
+    
+
     <div class="field mb-4">
       <span class="p-float-label">
         <label for="full_name">
-          <i class="pi pi-user mr-2 mb-2"></i>Nombre Completo
+          <i class="pi pi-user mr-2 mb-2"></i>Nombre Completo <span class="text-danger">*</span>
         </label>
         <input id="full_name" type="text" pInputText [(ngModel)]="currentPatient.full_name" class="w-full" />
       </span>
@@ -62,7 +64,7 @@
         <div class="field">
           <span class="p-float-label">
             <label for="identification_number">
-              <i class="pi pi-id-card mr-2 mb-2"></i>Identificación
+              <i class="pi pi-id-card mr-2 mb-2"></i>Identificación <span class="text-danger">*</span>
             </label>
             <input id="identification_number" type="text" pInputText maxlength="10"
               [(ngModel)]="currentPatient.identification_number"
@@ -79,7 +81,7 @@
           <span class="p-float-label">
 
             <label for="phone_number">
-              <i class="pi pi-phone mr-2 mb-2"></i>Teléfono
+              <i class="pi pi-phone mr-2 mb-2"></i>Teléfono <span class="text-danger">*</span>
             </label>
             <input id="phone_number" type="text" pInputText maxlength="10"
               [(ngModel)]="currentPatient.phone_number"

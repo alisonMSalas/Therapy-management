@@ -159,8 +159,10 @@ export class PacientsComponent implements OnInit{
           this.getAllPatients();
           this.messageService.showSuccess('Paciente actualizado correctamente');
         },
-        error: () => {
-          this.messageService.showError('Error al actualizar el paciente');
+        error: (error) => {
+       
+          const errorMessage = error.error?.message || 'Error al actualizar el paciente';
+          this.messageService.showError(errorMessage);
         }
       });
     } else {
@@ -169,8 +171,10 @@ export class PacientsComponent implements OnInit{
           this.getAllPatients();
           this.messageService.showSuccess('Paciente creado correctamente');
         },
-        error: () => {
-          this.messageService.showError('Error al crear el paciente');
+        error: (error) => {
+          
+          const errorMessage = error.error?.message || 'Error al crear el paciente';
+          this.messageService.showError(errorMessage);
         }
       });
     }
@@ -192,8 +196,10 @@ export class PacientsComponent implements OnInit{
           this.getAllPatients();
           this.messageService.showSuccess('Paciente eliminado correctamente');
         },
-        error: () => {
-          this.messageService.showError('Error al eliminar el paciente');
+        error: (error) => {
+        
+          const errorMessage = error.error?.message || 'Error al eliminar el paciente';
+          this.messageService.showError(errorMessage);
         }
       });
     }
@@ -219,7 +225,7 @@ export class PacientsComponent implements OnInit{
       this.currentPatient.identification_number.length === 10 &&
       !this.isValidEcuadorianID(this.currentPatient.identification_number);
     
-    // Validar duplicados en tiempo real (solo si la cédula es válida)
+    // Validar duplicados de cedula
     if (this.currentPatient.identification_number.length === 10 && !this.cedulaInvalida) {
       if (!this.isEditMode && this.isCedulaDuplicate(this.currentPatient.identification_number)) {
         this.cedulaDuplicada = true;

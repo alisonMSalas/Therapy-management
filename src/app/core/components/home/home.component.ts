@@ -283,8 +283,10 @@ export class HomeComponent implements OnInit {
         appointment.attendanceStatus = newAttendance;
         this.messageService.showSuccess('Estado de asistencia actualizado');
       },
-      error: () => {
-        this.messageService.showError('Error al actualizar la asistencia');
+      error: (error) => {
+        // Capturar el mensaje de error del backend
+        const errorMessage = error.error?.message || 'Error al actualizar la asistencia';
+        this.messageService.showError(errorMessage);
       }
     });
   }
@@ -608,8 +610,10 @@ export class HomeComponent implements OnInit {
         // Forzar actualización del calendario
         this.updateCalendarEvents();
       },
-      error: () => {
-        this.messageService.showError('Error al crear la cita');
+      error: (error) => {
+        // Capturar el mensaje de error del backend
+        const errorMessage = error.error?.message || 'Error al crear la cita';
+        this.messageService.showError(errorMessage);
       }
     });
   }
@@ -662,8 +666,11 @@ export class HomeComponent implements OnInit {
             this.finishMultipleAppointments(createdCount, errorCount);
           }
         },
-        error: () => {
+        error: (error) => {
           errorCount++;
+          // Capturar el mensaje de error del backend para logging (opcional)
+          const errorMessage = error.error?.message || 'Error al crear la cita';
+          console.error(`Error creando cita ${index + 1}:`, errorMessage);
           if (createdCount + errorCount === totalAppointments) {
             this.finishMultipleAppointments(createdCount, errorCount);
           }
@@ -762,8 +769,10 @@ export class HomeComponent implements OnInit {
         this.displayPatientDialog = false;
         this.messageService.showSuccess('Paciente creado correctamente');
       },
-      error: () => {
-        this.messageService.showError('Error al crear el paciente');
+      error: (error) => {
+        // Capturar el mensaje de error del backend
+        const errorMessage = error.error?.message || 'Error al crear el paciente';
+        this.messageService.showError(errorMessage);
       }
     });
   }

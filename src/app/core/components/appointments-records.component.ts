@@ -66,7 +66,16 @@ export class AppointmentsRecordsComponent implements OnInit {
   getRooms(): { label: string, value: string }[] {
     // Extrae las salas únicas de las citas
     const uniqueRooms = Array.from(new Set(this.allAppointments.map(a => a.room.name)));
-    return uniqueRooms.map(room => ({ label: room, value: room }));
+    
+    // Ordenar las salas numéricamente (Sala 1, Sala 2, Sala 3...)
+    const sortedRooms = uniqueRooms.sort((a, b) => {
+      // Extraer el número de la sala (ej: "Sala 1" -> 1)
+      const numA = parseInt(a.match(/\d+/)?.[0] || '0');
+      const numB = parseInt(b.match(/\d+/)?.[0] || '0');
+      return numA - numB;
+    });
+    
+    return sortedRooms.map(room => ({ label: room, value: room }));
   }
 
   filterAppointments(): BackendAppointment[] {
@@ -114,8 +123,10 @@ export class AppointmentsRecordsComponent implements OnInit {
         appointment.attendanceStatus = newAttendance;
         this.messageService.showSuccess('Estado de asistencia actualizado');
       },
-      error: () => {
-        this.messageService.showError('Error al actualizar el estado de asistencia');
+      error: (error) => {
+        // Capturar el mensaje de error del backend
+        const errorMessage = error.error?.message || 'Error al actualizar el estado de asistencia';
+        this.messageService.showError(errorMessage);
       }
     });
   }
@@ -128,8 +139,10 @@ export class AppointmentsRecordsComponent implements OnInit {
         this.getAllAppointments();
         this.messageService.showSuccess('Cita eliminada correctamente');
       },
-      error: () => {
-        this.messageService.showError('Error al eliminar la cita');
+      error: (error) => {
+        // Capturar el mensaje de error del backend
+        const errorMessage = error.error?.message || 'Error al eliminar la cita';
+        this.messageService.showError(errorMessage);
       }
     });
   }
@@ -173,8 +186,10 @@ export class AppointmentsRecordsComponent implements OnInit {
         this.selectedAppointmentForEdit = null;
         this.editComments = '';
       },
-      error: () => {
-        this.messageService.showError('Error al actualizar los comentarios');
+      error: (error) => {
+        // Capturar el mensaje de error del backend
+        const errorMessage = error.error?.message || 'Error al actualizar los comentarios';
+        this.messageService.showError(errorMessage);
       }
     });
   }

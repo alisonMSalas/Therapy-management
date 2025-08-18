@@ -42,6 +42,10 @@ export interface UpdateCommentsDto {
   comments: string;
 }
 
+export interface RescheduleAppointmentDto {
+  dateTime: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -64,6 +68,10 @@ export class AppointmentsService {
 
   updateComments(appointmentId: number, updateCommentsDto: UpdateCommentsDto): Observable<any> {
     return this.http.patch(`${this.apiUrl}/${appointmentId}/comments`, updateCommentsDto);
+  }
+
+  rescheduleAppointment(appointmentId: number, rescheduleDto: RescheduleAppointmentDto): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${appointmentId}/reschedule`, rescheduleDto);
   }
 
   deleteAppointment(appointmentId: number): Observable<any> {

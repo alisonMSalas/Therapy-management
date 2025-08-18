@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { DropdownModule } from 'primeng/dropdown';
@@ -10,7 +10,6 @@ import { AppMessageService } from '../../core/services/message.service';
 import { InputTextModule } from 'primeng/inputtext';
 import { ConfirmService } from '../../core/services/confirm.service';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
-import { ViewChild } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
 import { RescheduleAppointmentDto } from './home/services/appointments.service';
 
@@ -29,6 +28,7 @@ export class AppointmentsRecordsComponent implements OnInit {
   selectedMonth: Date = new Date();
   selectedAppointmentForMenu: BackendAppointment | null = null;
   @ViewChild('attendanceMenu') attendanceMenu: any;
+  @ViewChild('rescheduleCalendar') rescheduleCalendar: any;
 
   // Propiedades para editar comentarios
   displayEditCommentsModal: boolean = false;
@@ -58,7 +58,8 @@ export class AppointmentsRecordsComponent implements OnInit {
   constructor(
     private appointmentsService: AppointmentsService,
     private messageService: AppMessageService,
-    private confirmService: ConfirmService
+    private confirmService: ConfirmService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -234,36 +235,131 @@ export class AppointmentsRecordsComponent implements OnInit {
 
   // Métodos para reprogramar citas
   showRescheduleModal(appointment: BackendAppointment) {
+    console.log('=== DEBUG: Abriendo modal de reprogramación ===');
+    console.log('Appointment completo:', appointment);
+    console.log('Appointment.dateTime:', appointment.dateTime);
+    console.log('Tipo de appointment.dateTime:', typeof appointment.dateTime);
+    
     this.selectedAppointmentForReschedule = appointment;
     
-    // Parsear la fecha y hora actual de la cita
-    const appointmentDateTime = new Date(appointment.dateTime);
-    this.newDateTime = appointmentDateTime;
-    
-    // Extraer la hora directamente del string ISO sin conversiones de zona horaria
-    // appointment.dateTime: "2025-07-17T14:30:00.000Z"
-    const [datePart, timePart] = appointment.dateTime.split('T');
-    if (timePart) {
-      const [hour, minute] = timePart.split(':');
-      // Usar la hora exacta del string, no la convertida
-      this.newTimeString = `${hour}:${minute}`;
-    } else {
-      // Fallback si no se puede parsear
-      this.newTimeString = '08:00';
+    try {
+      // Verificar que appointment.dateTime existe y es válido
+      if (!appointment.dateTime) {
+        console.error('❌ La cita no tiene fecha válida:', appointment);
+        this.messageService.showError('La cita seleccionada no tiene una fecha válida');
+        return;
+      }
+
+      // Parsear la fecha y hora actual de la cita
+      console.log('🔄 Parseando fecha:', appointment.dateTime);
+      const appointmentDateTime = new Date(appointment.dateTime);
+      console.log('📅 Fecha parseada:', appointmentDateTime);
+      console.log('📅 Timestamp:', appointmentDateTime.getTime());
+      console.log('📅 Es válida:', !isNaN(appointmentDateTime.getTime()));
+      
+      // Verificar que la fecha se parseó correctamente
+      if (isNaN(appointmentDateTime.getTime())) {
+        console.error('❌ Error al parsear la fecha:', appointment.dateTime);
+        this.messageService.showError('Error al procesar la fecha de la cita');
+        return;
+      }
+      
+      // Crear una nueva instancia de Date para evitar problemas de referencia
+      this.newDateTime = new Date(appointmentDateTime.getTime());
+      console.log('🆕 Nueva fecha para el modal:', this.newDateTime);
+      
+      // Extraer la hora directamente del string ISO sin conversiones de zona horaria
+      // appointment.dateTime: "2025-07-17T14:30:00.000Z"
+      console.log('⏰ Extrayendo hora del string ISO...');
+      const [datePart, timePart] = appointment.dateTime.split('T');
+      console.log('📅 Date part:', datePart);
+      console.log('⏰ Time part:', timePart);
+      
+      if (timePart) {
+        const [hour, minute] = timePart.split(':');
+        console.log('🕐 Hour:', hour, 'Minute:', minute);
+        console.log('🔢 Hour es número:', !isNaN(Number(hour)), 'Minute es número:', !isNaN(Number(minute)));
+        
+        // Verificar que hour y minute son números válidos
+        if (hour && minute && !isNaN(Number(hour)) && !isNaN(Number(minute))) {
+          // Usar la hora exacta del string, no la convertida
+          this.newTimeString = `${hour}:${minute}`;
+          console.log('✅ Hora extraída del string ISO:', this.newTimeString);
+        } else {
+          // Fallback: usar la hora del objeto Date parseado
+          const hours = appointmentDateTime.getHours().toString().padStart(2, '0');
+          const minutes = appointmentDateTime.getMinutes().toString().padStart(2, '0');
+          this.newTimeString = `${hours}:${minutes}`;
+          console.log('🔄 Fallback: hora del Date parseado:', this.newTimeString);
+        }
+      } else {
+        // Fallback: usar la hora del objeto Date parseado
+        const hours = appointmentDateTime.getHours().toString().padStart(2, '0');
+        const minutes = appointmentDateTime.getMinutes().toString().padStart(2, '0');
+        this.newTimeString = `${hours}:${minutes}`;
+        console.log('🔄 Fallback: hora del Date parseado (sin timePart):', this.newTimeString);
+      }
+      
+      // Establecer la fecha mínima como la fecha actual
+      this.minDateForReschedule = new Date();
+      console.log('📅 Fecha mínima establecida:', this.minDateForReschedule);
+      
+      this.displayRescheduleModal = true;
+      console.log('✅ Modal abierto correctamente');
+      
+      // Forzar la detección de cambios para asegurar que el p-calendar se actualice
+      setTimeout(() => {
+        console.log('🔄 Forzando detección de cambios...');
+        this.cdr.detectChanges();
+        
+        // Forzar la actualización del p-calendar
+        if (this.rescheduleCalendar) {
+          console.log('📅 Forzando actualización del p-calendar...');
+          
+          // Método 1: Actualizar el modelo interno
+          this.rescheduleCalendar.updateModel(this.newDateTime);
+          
+          // Método 2: Forzar la actualización del input
+          this.rescheduleCalendar.updateInputfield();
+          
+          // Método 3: Trigger manual del input usando el valor formateado
+          if (this.rescheduleCalendar.inputfieldViewChild && this.rescheduleCalendar.inputfieldViewChild.nativeElement) {
+            const formattedDate = this.formatDateForInput(this.newDateTime);
+            this.rescheduleCalendar.inputfieldViewChild.nativeElement.value = formattedDate;
+            console.log('📅 Valor manual establecido en input:', formattedDate);
+          }
+          
+          // Método 4: Forzar la detección de cambios del componente
+          if (this.rescheduleCalendar.cd) {
+            this.rescheduleCalendar.cd.detectChanges();
+          }
+        }
+        
+        console.log('✅ Detección de cambios completada');
+      }, 100);
+      
+    } catch (error) {
+      console.error('❌ Error al abrir el modal de reprogramación:', error);
+      this.messageService.showError('Error al procesar la información de la cita');
     }
-    
-    // Establecer la fecha mínima como la fecha actual
-    this.minDateForReschedule = new Date();
-    
-    this.displayRescheduleModal = true;
   }
 
   saveReschedule() {
     if (!this.selectedAppointmentForReschedule) return;
 
-    // Validar que la nueva fecha no esté en el pasado
+    // Construir la fecha y hora completa para validación
+    const [hours, minutes] = this.newTimeString.split(':').map(Number);
+    const completeDateTime = new Date(
+      this.newDateTime.getFullYear(),
+      this.newDateTime.getMonth(),
+      this.newDateTime.getDate(),
+      hours,
+      minutes
+    );
+
+    // Validar que la nueva fecha y hora no esté en el pasado
     const now = new Date();
-    if (this.newDateTime <= now) {
+    if (completeDateTime <= now) {
       this.messageService.showError('La nueva fecha y hora debe ser en el futuro');
       return;
     }
@@ -274,7 +370,6 @@ export class AppointmentsRecordsComponent implements OnInit {
     }
 
     // Construir el dateTime para el backend
-    const [hours, minutes] = this.newTimeString.split(':').map(Number);
     const backendDateTime = new Date(
       this.newDateTime.getFullYear(),
       this.newDateTime.getMonth(),
@@ -391,5 +486,12 @@ export class AppointmentsRecordsComponent implements OnInit {
     hours = hours % 12;
     hours = hours ? hours : 12;
     return `${hours}:${minutes} ${ampm}`;
+  }
+
+  private formatDateForInput(date: Date): string {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(-2); // Solo los últimos 2 dígitos del año
+    return `${day}/${month}/${year}`;
   }
 }

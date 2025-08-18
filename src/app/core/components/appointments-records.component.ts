@@ -12,6 +12,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { ViewChild } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
+import { RescheduleAppointmentDto } from './home/services/appointments.service';
 
 @Component({
   selector: 'app-appointments-records',
@@ -33,6 +34,13 @@ export class AppointmentsRecordsComponent implements OnInit {
   displayEditCommentsModal: boolean = false;
   selectedAppointmentForEdit: BackendAppointment | null = null;
   editComments: string = '';
+
+  // Propiedades para reprogramar citas
+  displayRescheduleModal: boolean = false;
+  selectedAppointmentForReschedule: BackendAppointment | null = null;
+  newDateTime: Date = new Date();
+  newTimeString: string = '08:00';
+  minDateForReschedule: Date = new Date();
 
   attendanceOptions = [
     { label: 'Confirmado', value: 'confirmed' },
@@ -222,5 +230,166 @@ export class AppointmentsRecordsComponent implements OnInit {
     const formattedTime = `${hour}:${minute}`;
     
     return `${formattedDate} ${formattedTime}`;
+  }
+
+  // Métodos para reprogramar citas
+  showRescheduleModal(appointment: BackendAppointment) {
+    this.selectedAppointmentForReschedule = appointment;
+    
+    // Parsear la fecha y hora actual de la cita
+    const appointmentDateTime = new Date(appointment.dateTime);
+    this.newDateTime = appointmentDateTime;
+    
+    // Extraer la hora directamente del string ISO sin conversiones de zona horaria
+    // appointment.dateTime: "2025-07-17T14:30:00.000Z"
+    const [datePart, timePart] = appointment.dateTime.split('T');
+    if (timePart) {
+      const [hour, minute] = timePart.split(':');
+      // Usar la hora exacta del string, no la convertida
+      this.newTimeString = `${hour}:${minute}`;
+    } else {
+      // Fallback si no se puede parsear
+      this.newTimeString = '08:00';
+    }
+    
+    // Establecer la fecha mínima como la fecha actual
+    this.minDateForReschedule = new Date();
+    
+    this.displayRescheduleModal = true;
+  }
+
+  saveReschedule() {
+    if (!this.selectedAppointmentForReschedule) return;
+
+    // Validar que la nueva fecha no esté en el pasado
+    const now = new Date();
+    if (this.newDateTime <= now) {
+      this.messageService.showError('La nueva fecha y hora debe ser en el futuro');
+      return;
+    }
+
+    // Validar conflictos de sala
+    if (this.checkRescheduleConflict()) {
+      return;
+    }
+
+    // Construir el dateTime para el backend
+    const [hours, minutes] = this.newTimeString.split(':').map(Number);
+    const backendDateTime = new Date(
+      this.newDateTime.getFullYear(),
+      this.newDateTime.getMonth(),
+      this.newDateTime.getDate(),
+      hours,
+      minutes
+    );
+
+    const dateTimeForBackend = backendDateTime.getFullYear() + '-' +
+      String(backendDateTime.getMonth() + 1).padStart(2, '0') + '-' +
+      String(backendDateTime.getDate()).padStart(2, '0') + 'T' +
+      String(backendDateTime.getHours()).padStart(2, '0') + ':' +
+      String(backendDateTime.getMinutes()).padStart(2, '0') + ':00';
+
+    const rescheduleDto: RescheduleAppointmentDto = {
+      dateTime: dateTimeForBackend
+    };
+
+    this.appointmentsService.rescheduleAppointment(this.selectedAppointmentForReschedule.id, rescheduleDto).subscribe({
+      next: () => {
+        // Actualizar la cita en la lista local
+        if (this.selectedAppointmentForReschedule) {
+          this.selectedAppointmentForReschedule.dateTime = dateTimeForBackend;
+        }
+        
+        this.messageService.showSuccess('Cita reprogramada exitosamente');
+        this.displayRescheduleModal = false;
+        this.selectedAppointmentForReschedule = null;
+        
+        // Recargar las citas para asegurar sincronización
+        this.getAllAppointments();
+      },
+      error: (error) => {
+        const errorMessage = error.error?.message || 'Error al reprogramar la cita';
+        this.messageService.showError(errorMessage);
+      }
+    });
+  }
+
+  cancelReschedule() {
+    this.displayRescheduleModal = false;
+    this.selectedAppointmentForReschedule = null;
+  }
+
+  checkRescheduleConflict(): boolean {
+    if (!this.selectedAppointmentForReschedule) return false;
+
+    const [hours, minutes] = this.newTimeString.split(':').map(Number);
+    const targetDateTime = new Date(
+      this.newDateTime.getFullYear(),
+      this.newDateTime.getMonth(),
+      this.newDateTime.getDate(),
+      hours,
+      minutes
+    );
+
+    const dateTimeForValidation = targetDateTime.getFullYear() + '-' +
+      String(targetDateTime.getMonth() + 1).padStart(2, '0') + '-' +
+      String(targetDateTime.getDate()).padStart(2, '0') + 'T' +
+      String(targetDateTime.getHours()).padStart(2, '0') + ':' +
+      String(targetDateTime.getMinutes()).padStart(2, '0') + ':00';
+
+    const targetDate = dateTimeForValidation.split('T')[0];
+    const targetTime = dateTimeForValidation.split('T')[1];
+
+    // Buscar citas existentes en la misma fecha (excluyendo la cita actual)
+    const existingAppointmentsOnDate = this.allAppointments.filter(appointment => {
+      const appointmentDate = appointment.dateTime.split('T')[0];
+      return appointmentDate === targetDate && appointment.id !== this.selectedAppointmentForReschedule!.id;
+    });
+
+    // Verificar si ya existe una cita en la misma sala en el mismo horario
+    const conflictingRoomAppointment = existingAppointmentsOnDate.find(appointment => {
+      const appointmentTime = appointment.dateTime.split('T')[1];
+      
+      // Normalizar el formato de hora para comparación
+      const normalizedAppointmentTime = appointmentTime.split('.')[0];
+      const normalizedTargetTime = targetTime;
+      
+      const isSameTime = normalizedAppointmentTime === normalizedTargetTime;
+      const isSameRoom = appointment.room.id === this.selectedAppointmentForReschedule!.room.id;
+      
+      return isSameTime && isSameRoom;
+    });
+
+    if (conflictingRoomAppointment) {
+      this.messageService.showError(`La sala ${this.selectedAppointmentForReschedule!.room.name} ya tiene una cita programada para el ${this.formatDate(targetDate)} a las ${this.getHourAMPM(dateTimeForValidation)}. Por favor, seleccione otra fecha u otro horario.`);
+      return true;
+    }
+
+    return false;
+  }
+
+  formatDate(date: string): string {
+    const [year, month, day] = date.split('-').map(Number);
+    const localDate = new Date(year, month - 1, day);
+    return localDate.toLocaleDateString('es-ES', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
+
+  getHourAMPM(dateTime: string): string {
+    const [_, timePart] = dateTime.split('T');
+    if (!timePart) return dateTime;
+    
+    const [hourStr, minuteStr] = timePart.split(':');
+    let hours = Number(hourStr);
+    const minutes = minuteStr.split('.')[0];
+    
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    return `${hours}:${minutes} ${ampm}`;
   }
 }

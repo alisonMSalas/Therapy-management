@@ -115,7 +115,10 @@
         </td>
         <td class="actions-cell">
           <button type="button" class="icon-btn icon-btn-edit" (click)="showEditCommentsModal(appointment)" title="Editar comentarios">
-            <i class="pi pi-pencil"></i>
+            <i class="pi pi-comment"></i>
+          </button>
+          <button type="button" class="icon-btn icon-btn-reschedule" (click)="showRescheduleModal(appointment)" title="Reprogramar cita">
+            <i class="pi pi-calendar-plus"></i>
           </button>
           <button type="button" class="icon-btn icon-btn-danger" (click)="deleteAppointment(appointment.id)" title="Eliminar cita">
             <i class="pi pi-trash"></i>
@@ -177,6 +180,79 @@
           label="Guardar" 
           icon="pi pi-check" 
           (onClick)="saveComments()"
+          [style]="{ 'background-color': '#0C4652', 'color': '#fff', 'border': 'none' }">
+        </p-button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Modal para reprogramar citas -->
+  <p-dialog 
+    header="Reprogramar Cita" 
+    [(visible)]="displayRescheduleModal"
+    [modal]="true"
+    [style]="{width: '50vw'}"
+    [draggable]="false"
+    [resizable]="false">
+    
+    <div class="reschedule-content" *ngIf="selectedAppointmentForReschedule">
+      <div class="current-appointment-info mb-4">
+        <h4>Información de la Cita Actual</h4>
+        <div class="grid">
+          <div class="col-12 md:col-6">
+            <label><strong>Cliente:</strong></label>
+            <p>{{ selectedAppointmentForReschedule.client.fullName }}</p>
+          </div>
+          <div class="col-12 md:col-6">
+            <label><strong>Sala:</strong></label>
+            <p>{{ selectedAppointmentForReschedule.room.name }}</p>
+          </div>
+          <div class="col-12 md:col-6">
+            <label><strong>Fecha y Hora Actual:</strong></label>
+            <p>{{ getLocalDateTimeNoConversion(selectedAppointmentForReschedule.dateTime) }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="new-datetime-section">
+        <h4>Nueva Fecha y Hora</h4>
+        <div class="grid">
+          <div class="col-12 md:col-6">
+            <label>Nueva Fecha</label>
+            <p-calendar 
+              [(ngModel)]="newDateTime" 
+              [showIcon]="true"
+              dateFormat="dd/mm/yy"
+              [showTime]="false"
+              [minDate]="minDateForReschedule"
+              class="w-full"
+              appendTo="body">
+            </p-calendar>
+          </div>
+          <div class="col-12 md:col-6">
+            <label>Nueva Hora</label>
+            <input 
+              type="time" 
+              [(ngModel)]="newTimeString"
+              class="w-full p-inputtext"
+              [style]="{'padding': '0.5rem', 'border': '1px solid #ced4da', 'border-radius': '4px'}">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="dialog-footer">
+        <p-button 
+          label="Cancelar" 
+          icon="pi pi-times" 
+          (onClick)="cancelReschedule()"
+          class="p-button-outlined p-button-secondary">
+        </p-button>
+        <p-button 
+          label="Reprogramar" 
+          icon="pi pi-calendar-plus" 
+          (onClick)="saveReschedule()"
           [style]="{ 'background-color': '#0C4652', 'color': '#fff', 'border': 'none' }">
         </p-button>
       </div>

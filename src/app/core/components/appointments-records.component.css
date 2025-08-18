@@ -47,26 +47,41 @@
 }
 
 .icon-btn {
-  background: none;
+  background: transparent;
   border: none;
-  padding: 0.15rem;
+  padding: 0.4rem;
   cursor: pointer;
-  border-radius: 50%;
-  transition: background 0.2s;
-  display: flex;
+  border-radius: 0;
+  transition: all 0.2s ease;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  margin: 0 1px;
+  vertical-align: middle;
 }
+
 .icon-btn:focus {
   outline: none;
-  background: #f5f5f5;
+  background: transparent;
+  border: none;
 }
+
+.icon-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  transform: none;
+  box-shadow: none;
+}
+
 .icon-btn-danger i {
   color: #C62828;
   font-size: 1rem;
 }
 .icon-btn-danger:hover {
   background: #FFCDD2;
+  border-color: #C62828;
 }
 
 .icon-btn-edit i {
@@ -75,6 +90,7 @@
 }
 .icon-btn-edit:hover {
   background: #FFF9C4;
+  border-color: #FBC02D;
 }
 
 .icon-btn-reschedule i {
@@ -83,6 +99,7 @@
 }
 .icon-btn-reschedule:hover {
   background: #BBDEFB;
+  border-color: #1565C0;
 }
 
 /* Estilos para el modal de reprogramación */
@@ -146,6 +163,7 @@
 }
 .icon-btn-menu:hover {
   background: #e0e0e0;
+  border-color: #616161;
 }
 
 .attendance-menu-btn {
@@ -168,7 +186,14 @@
 .actions-cell {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  justify-content: center;
+  gap: 3px;
+  padding: 0.75rem 0.5rem;
+  background: #ffffff;
+  border: none;
+  text-align: center;
+  vertical-align: middle;
+  min-height: 60px;
 }
 
 /* Estilos para el modal de edición de comentarios */
